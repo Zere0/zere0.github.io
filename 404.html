@@ -1,0 +1,94 @@
+---
+layout: page
+title: "404 - Page Not Found"
+permalink: /404.html
+---
+
+<div style="text-align: center; padding: 4rem 2rem; min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+  
+  <div class="cyber-border" style="padding: 3rem; max-width: 600px; margin: 0 auto;">
+    
+    <div style="font-size: 8rem; color: var(--primary-color); margin-bottom: 2rem;">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    
+    <h1 style="font-size: 3rem; margin-bottom: 1rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+      404 - Access Denied
+    </h1>
+    
+    <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">
+      The page you're looking for seems to have been compromised... or simply doesn't exist.
+    </p>
+    
+    <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 12px; margin: 2rem 0;">
+      <h3><i class="fas fa-search security-icon"></i>Possible Solutions</h3>
+      <ul style="text-align: left; list-style: none; padding: 0;">
+        <li style="margin: 0.5rem 0;"><i class="fas fa-check security-icon"></i>Check the URL for typos</li>
+        <li style="margin: 0.5rem 0;"><i class="fas fa-check security-icon"></i>Use the navigation menu above</li>
+        <li style="margin: 0.5rem 0;"><i class="fas fa-check security-icon"></i>Try searching for the content</li>
+        <li style="margin: 0.5rem 0;"><i class="fas fa-check security-icon"></i>Go back to the homepage</li>
+      </ul>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
+      <a href="/" class="btn btn-primary">
+        <i class="fas fa-home"></i> Home
+      </a>
+      <a href="/about" class="btn btn-secondary">
+        <i class="fas fa-user-shield"></i> About
+      </a>
+      <a href="/posts" class="btn btn-primary">
+        <i class="fas fa-blog"></i> Blog
+      </a>
+    </div>
+    
+    <div style="margin-top: 3rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px;">
+      <p style="margin: 0; color: var(--text-secondary);">
+        <i class="fas fa-info-circle security-icon"></i>
+        If you believe this is an error, please contact me at 
+        <a href="mailto:zere@wearehackerone.com" style="color: var(--primary-color);">zere@wearehackerone.com</a>
+      </p>
+    </div>
+    
+  </div>
+  
+  <div style="margin-top: 3rem; text-align: center;">
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      <i class="fas fa-shield-alt"></i> 
+      Stay secure, stay curious! 🔒
+    </p>
+  </div>
+  
+</div>
+
+<style>
+/* Custom 404 page animations */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.cyber-border {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.security-icon {
+  color: var(--primary-color);
+  margin-right: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cyber-border {
+    padding: 2rem 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem !important;
+  }
+  
+  .btn {
+    margin: 0.5rem;
+  }
+}
+</style> 
