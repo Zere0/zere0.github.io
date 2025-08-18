@@ -10,9 +10,7 @@ math: false
 mermaid: true
 ---
 
-Have you ever encountered two security issues that seem harmless individually, but when combined, result in an impactful vulnerability? That’s exactly what happened to me recently while auditing the main application of a private bug bounty program.
-
-I discovered a **Client-Side Path Traversal (CSPT)** and a **Cache Deception** vulnerability in the same domain of the same application. Individually, these issues were unexploitable and had no real impact. However, when chained together, I was able to demonstrate **Account Takeover**.
+Recently, while auditing the main application of a private bug bounty program, I discovered a **Client-Side Path Traversal (CSPT)** and a **Cache Deception** vulnerability. Individually, these issues were unexploitable and had no real impact. However, when chained together, I was able to demonstrate **Account Takeover**.
 
 Before diving into the details, if you’re not familiar with these concepts, I highly recommend checking out:
 
@@ -188,6 +186,6 @@ sequenceDiagram
 
 ## **Conclusion**
 
-Thank you for reading this write-up. I hope the attack chain was informative and provided new insights into how minor vulnerabilities, when combined, can create significant security risks, showing why it’s crucial to think beyond individual security mechanisms and never ignore seemingly unexploitable findings. In many cases, the most dangerous attacks result from chaining multiple vulnerabilities that appear harmless in isolation.
+I hope the attack chain was informative and provided new insights into how minor vulnerabilities, when combined, can create significant security risks, showing why it’s crucial to think beyond individual security mechanisms and never ignore seemingly unexploitable findings. In many cases, the most dangerous attacks result from chaining multiple vulnerabilities that appear harmless in isolation.
 
 If you have any questions about the attack methodology, technical details, or want to discuss similar findings, feel free to reach out.
