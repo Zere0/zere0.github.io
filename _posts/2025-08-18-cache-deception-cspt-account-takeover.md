@@ -150,7 +150,7 @@ Which resolves to:
 https://api.example.com/v1/token.css
 ```
 
-The key insight is that this request includes the user's **`X-Auth-Token`** header. Thus, when the CSPT triggers, it sends an authenticated request to the cacheable endpoint.
+The key insight is that this request includes the user's **`X-Auth-Token`** header. So, when the CSPT triggers, it sends an authenticated request to the cacheable endpoint.
 
 The API returns the sensitive token data, and the CDN caches the response.
 
