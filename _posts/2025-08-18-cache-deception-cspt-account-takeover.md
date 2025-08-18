@@ -1,8 +1,8 @@
 ---
 title: "Cache Deception + CSPT: Turning Non Impactful Findings into Account Takeover"
 keywords: "cache deception, cspt, client-side path traversal, account takeover, bug bounty, web security, vulnerability chaining, security research"
-date: 2025-08-17
-lastmod: 2025-08-17
+date: 2025-08-18
+lastmod: 2025-08-18
 categories: [Security, Bug-Bounty, Web-Security]
 tags: [cspt, cache-deception, account-takeover, web-security, bug-bounty, client-side-path-traversal, vulnerability-chaining]
 toc: true
