@@ -15,7 +15,7 @@ Recently, while auditing the main application of a private bug bounty program, I
 Before diving into the details, if you’re not familiar with these concepts, I highly recommend checking out:
 
 **For CSPT:**
-- [Matan Ber's excellent introduction to CSPT](https://matanber.com/blog/cspt-levels/){:target="_blank"} – a thorough explanation of the concept from the basics.
+- [Matan Berson's excellent introduction to CSPT](https://matanber.com/blog/cspt-levels/){:target="_blank"} – a thorough explanation of the concept from the basics.
 - [My CSPT talk in Spanish](https://www.youtube.com/watch?v=TAl1UIdZbK8){:target="_blank"} – if you speak Spanish, I cover the fundamentals and some practical scenarios here.
 - [This great CSPT presentation by Maxence Schmitt](https://www.youtube.com/watch?v=O1ZN_OCfNzg&pp=ygUbIGNsaWVudCBzaWRlIHBhdGggdHJhdmVyc2Fs){:target="_blank"}
 
