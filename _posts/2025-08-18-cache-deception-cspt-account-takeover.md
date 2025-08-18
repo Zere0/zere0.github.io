@@ -33,6 +33,8 @@ Host: api.example.com
 X-Auth-Token: <REDACTED>
 Accept: application/json
 Accept-Encoding: gzip, deflate, br
+
+
 ```
 
 ```http
@@ -55,6 +57,8 @@ Host: api.example.com
 X-Auth-Token: <REDACTED>
 Accept: application/json
 Accept-Encoding: gzip, deflate, br
+
+
 ```
 
 ```http
