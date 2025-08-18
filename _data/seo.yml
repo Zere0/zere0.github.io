@@ -1,0 +1,35 @@
+# SEO Configuration
+site_name: "Zere - Cybersecurity Blog"
+site_description: "Personal blog of Jorge Cerezo Dacosta - Security researcher and bug hunter. Sharing writeups, security research, and insights from the world of ethical hacking."
+site_keywords: "cybersecurity, bug bounty, web security, vulnerability research, ethical hacking, security researcher, Jorge Cerezo Dacosta"
+
+# Social Media
+social_media:
+  twitter:
+    username: "@j_zere"
+    card_type: "summary_large_image"
+  linkedin:
+    username: "jorge-cerezo-95219123b"
+  github:
+    username: "zere0"
+  hackerone:
+    username: "zere"
+
+# Structured Data
+organization:
+  name: "Zere"
+  url: "https://zere.es"
+  logo: "https://profile-photos.hackerone-user-content.com/variants/143ay60f8gaoivyig3utex2lbkyc/1f5f0b004538fa559b88c7cdaa83dc9994ade0115530301c24da68d7374ad40c"
+  description: "Cybersecurity research and bug bounty writeups"
+
+# Content Categories
+content_categories:
+  - name: "Bug Bounty"
+    description: "Bug bounty program writeups and findings"
+    slug: "bug-bounty"
+  - name: "Web Security"
+    description: "Web application security research and vulnerabilities"
+    slug: "web-security"
+  - name: "Security Research"
+    description: "General security research and techniques"
+    slug: "security-research"
