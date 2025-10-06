@@ -8,14 +8,8 @@ tags: [default-creds, sqli, lfr, rce, xss, blind-xss, university, web-security, 
 toc: true
 math: false
 mermaid: true
+social_image: /assets/img/upm-vulnerabilities/logo.png
 ---
-
-<head>
-  <meta property="og:image" content="https://zere0.github.io/assets/img/upm-vulnerabilities/logo.png">
-  <meta property="og:image:alt" content="Universidad Politécnica de Madrid Logo">
-  <meta name="twitter:image" content="https://zere0.github.io/assets/img/upm-vulnerabilities/logo.png">
-  <meta name="twitter:image:alt" content="Universidad Politécnica de Madrid Logo">
-</head>
 
 
 
