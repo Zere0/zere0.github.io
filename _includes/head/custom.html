@@ -8,13 +8,6 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></noscript>
 <script src="{{ '/assets/js/custom.js' | relative_url }}" defer></script>
 
-<!-- Social Media Cards -->
-{% if page.social_image or site.social_image %}
-  {% assign card_image = page.social_image | default: site.social_image %}
-  <meta property="og:image" content="{{ card_image | absolute_url }}">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="{{ card_image | absolute_url }}">
-{% endif %}
 
 <!-- Mermaid.js for diagrams -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
