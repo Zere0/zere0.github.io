@@ -1,8 +1,8 @@
 ---
 title: "A University Web Audit"
 keywords: "default creds, sqli, lfr, rce, xss, blind-xss, university, web security, account takeover"
-date: 2025-09-05
-lastmod: 2025-09-05
+date: 2025-10-06
+lastmod: 2025-10-06
 categories: [Security, Web-Security]
 tags: [default-creds, sqli, lfr, rce, xss, blind-xss, university, web-security, account-takeover]
 toc: true
