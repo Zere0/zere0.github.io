@@ -934,6 +934,35 @@ blockquote::before {
   opacity: 0.5;
 }
 
+/* Style UPM logo in posts - more specific selectors */
+.post .preview-img.shimmer img[src*="logo.png"] {
+  max-width: 300px !important;
+  width: 300px !important;
+  height: auto !important;
+  background: transparent !important;
+  border-radius: 8px !important;
+}
+
+.post .img-link.preview-img.shimmer {
+  display: block !important;
+  text-align: center !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 1rem auto !important;
+  max-width: 300px !important;
+}
+
+.post .mt-3.mb-3 {
+  text-align: center !important;
+}
+
+.post .mt-3.mb-3 figcaption {
+  font-size: 0.9rem !important;
+  color: var(--text-muted-color) !important;
+  margin-top: 0.5rem !important;
+}
+
 /* Enhanced social buttons */
 .btn[href*="github.com"] {
   background: #333 !important;

@@ -8,7 +8,8 @@ tags: [default-creds, sqli, lfr, rce, xss, blind-xss, university, web-security, 
 toc: true
 math: false
 mermaid: true
-social_image: /assets/img/upm-vulnerabilities/logo.png
+image:
+  path: /assets/img/upm-vulnerabilities/logo-2.png
 ---
 
 
@@ -20,8 +21,6 @@ During my final degree project, I audited several web applications from my unive
 - **[SQL Injection](#sql-injections-everywhere)**: Exploiting validation weaknesses to extract sensitive student and administrator data.
 - **[Weak Credentials](#weak-credentials-in-the-admin-portal)**: Discovering weak credentials protecting admin portals.
 - **[Local File Read to RCE](#remote-code-execution-via-local-file-read)**: Chaining a file inclusion vulnerability to achieve remote code execution.
-
-![](../assets/img/upm-vulnerabilities/logo.png)
 
 
 > The complete write-up, along with much more context about the applications and vulnerabilities, can be read [here](https://oa.upm.es/90101/1/TFG_JORGE_CEREZO_DACOSTA.pdf){:target="_blank"} (although it is in Spanish).
