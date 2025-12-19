@@ -9,7 +9,7 @@ author:
   email: zere@wearehackerone.com
   bio: Cybersecurity Researcher & Bug Hunter
   location: Spain
-  avatar: /assets/img/profile.jpeg
+  avatar: /assets/img/profile.png
 
 keywords: "hackerone, cybersecurity, bug bounty, web security, vulnerability research, ethical hacking, security researcher, Jorge Cerezo Dacosta"
 # google_analytics: G-MSPCT73LMN 
@@ -111,7 +111,7 @@ theme_mode: dark
 cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar: /assets/img/profile.jpeg
+avatar: /assets/img/profile.png
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.
