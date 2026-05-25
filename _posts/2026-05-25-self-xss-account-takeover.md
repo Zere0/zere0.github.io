@@ -440,7 +440,7 @@ If you are building something similar, the main takeaways are simple:
 
 ## Conclusion
 
-What I liked about this finding is that every individual piece looked easy to underestimate.
+The reason why I decided to write this post is simple: every individual piece of this finding looks easy to underestimate, making it require attention to detail.
 
 The name field stripped raw tags. The XSS payload was limited to 20 characters. The WAF detected the obvious request. The initial XSS was only in my own account. The OAuth code should have been consumed immediately.
 
