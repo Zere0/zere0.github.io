@@ -8,6 +8,8 @@ tags: [cspt, cache-deception, account-takeover, web-security, bug-bounty, client
 toc: true
 math: false
 mermaid: true
+image:
+  path: /assets/img/cache-deception-cspt/cover.png
 ---
 
 Recently, while auditing the main application of a private bug bounty program, I discovered a **Client-Side Path Traversal (CSPT)** and a **Cache Deception** vulnerability. Individually, these issues were unexploitable and had no real impact. However, when chained together, I was able to demonstrate **Account Takeover**.

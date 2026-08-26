@@ -8,6 +8,8 @@ tags: [stored-xss, dom-xss, login-csrf, oauth, account-takeover, cookie-bomb, we
 toc: true
 math: false
 mermaid: true
+image:
+  path: /assets/img/self-xss-account-takeover/cover.png
 ---
 
 
