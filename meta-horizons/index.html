@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meta Horizons Security PoCs</title>
 <style>
-body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #0a0a0a; color: #e0e0e0; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 650px; margin: 40px auto; padding: 0 20px; background: #0a0a0a; color: #e0e0e0; }
 h1 { color: #ff6b35; font-size: 1.4em; }
 h2 { color: #58a6ff; font-size: 1.1em; margin-top: 24px; }
 h3 { color: #8b949e; font-size: 0.95em; margin-top: 16px; }
 .warning { background: #1a1a2e; border: 1px solid #ff6b35; padding: 16px; border-radius: 8px; margin: 20px 0; }
+.adversarial { background: #0d1117; border: 1px solid #58a6ff; padding: 16px; border-radius: 8px; margin: 20px 0; }
+.apk-box { background: #0d1117; border: 1px solid #238636; padding: 16px; border-radius: 8px; margin: 20px 0; }
 .btn { display: inline-block; padding: 12px 24px; background: #ff6b35; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 8px 4px; font-size: 14px; }
 .btn:hover { background: #e55a2b; }
 .btn-critical { background: #da3633; }
@@ -22,19 +24,55 @@ code { background: #1a1a2e; padding: 2px 6px; border-radius: 4px; font-size: 0.9
 pre { background: #1a1a2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 0.8em; }
 .info { color: #888; font-size: 0.9em; }
 .severity { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.sev-critical { background: #8b1a1a; color: #fff; }
 .sev-high { background: #da3633; color: #fff; }
+.sev-medium-high { background: #c45a1f; color: #fff; }
 .sev-medium { background: #1f6feb; color: #fff; }
 .sev-low { background: #6e7681; color: #fff; }
+.sev-info { background: #3d444d; color: #ccc; }
+.downgraded { opacity: 0.7; border-left: 3px solid #d29922; padding-left: 12px; }
+.downgraded h2 { color: #8b949e; }
+.strike { text-decoration: line-through; opacity: 0.5; }
 .section { border-top: 1px solid #21262d; padding-top: 16px; margin-top: 24px; }
+.new-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; background: #238636; color: #fff; margin-left: 6px; vertical-align: middle; }
+table.downgrades { width: 100%; border-collapse: collapse; font-size: 0.85em; margin: 12px 0; }
+table.downgrades th, table.downgrades td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #21262d; }
+table.downgrades th { color: #58a6ff; font-weight: 600; }
+table.downgrades .old { color: #da3633; text-decoration: line-through; }
+table.downgrades .new { color: #238636; font-weight: 600; }
+table.downgrades .reason { color: #8b949e; font-size: 0.9em; }
 </style>
 </head>
 <body>
 <h1>Meta Horizons Security PoCs</h1>
-<p class="info">com.oculus.twilight v394.1.0.17.262 | Round 6 — 37 Findings</p>
+<p class="info">com.oculus.twilight v394.1.0.17.262 | Round 7 — 44 Findings (adversarial corrections applied)</p>
 
 <div class="warning">
 <strong>Native Route Bypass:</strong> These deep links route to native Activities that bypass the React Native SceneTracker gate. They work on ANY device — no paired VR headset required. All dynamically confirmed via logcat activity chain tracing.
 </div>
+
+<!-- ===== ADVERSARIAL REVIEW SUMMARY ===== -->
+<div class="adversarial">
+<strong>Adversarial Review (Round 7):</strong> 8 findings downgraded after adversarial validation. Findings below reflect corrected severity ratings. Original claims that did not survive scrutiny are marked with strikethrough.
+<table class="downgrades">
+<tr><th>ID</th><th>Was</th><th>Now</th><th>Reason</th></tr>
+<tr><td>V-01</td><td class="old">Critical</td><td class="new">Low</td><td class="reason">BroadcastReceiver disabled + signature permission</td></tr>
+<tr><td>V-45</td><td class="old">High</td><td class="new">Low</td><td class="reason">Component disabled by default</td></tr>
+<tr><td>V-46</td><td class="old">High</td><td class="new">Low</td><td class="reason">No external JS execution path into RN context</td></tr>
+<tr><td>V-47</td><td class="old">Medium</td><td class="new">Low</td><td class="reason">Same JS execution barrier as V-46</td></tr>
+<tr><td>V-48</td><td class="old">Medium</td><td class="new">Info</td><td class="reason">Sessionless whitelist is server-enforced design pattern</td></tr>
+<tr><td>V-49</td><td class="old">Medium</td><td class="new">Info</td><td class="reason">Standard RN bridge behavior, not a vulnerability</td></tr>
+<tr><td>V-50</td><td class="old">Medium</td><td class="new">Low</td><td class="reason">DoS only — no confidentiality/integrity impact</td></tr>
+<tr><td>V-52</td><td class="old">High</td><td class="new">Low</td><td class="reason">JS execution barrier blocks attacker control of URI</td></tr>
+</table>
+</div>
+
+<!-- ===== ATTACKER APK ===== -->
+<div class="apk-box">
+<strong>Attacker PoC APK:</strong> <code>horizons-audit-poc.apk</code> demonstrates exploitation of V-14 (intent redirection), V-24 (WebView injection), V-27 (agent.meta.ai bypass), V-28 (OAuth CSRF), V-29 (consent flow). Install on test device alongside Meta Horizons to trigger deep link chains and capture callbacks.
+</div>
+
+<!-- ===== CONFIRMED HIGH FINDINGS ===== -->
 
 <div class="section">
 <h2>V-24 + V-51: destination_url WebView Injection + HTTP Downgrade <span class="severity sev-high">HIGH</span></h2>
@@ -56,20 +94,36 @@ V-25: TYI OAuth Injection
 </div>
 
 <div class="section">
-<h2>V-52: Sharing Module URI Grant → SD Card Read <span class="severity sev-high">HIGH</span></h2>
-<p>RN sharing modules grant URI read permission on SecureFileProvider backed by <code>external-path="/"</code> (entire SD card). Scope defaults to ANY_APP when <code>?s=</code> parameter is missing.</p>
-<p class="info">Requires attacker app as share target or JS execution in RN context to control mediaPath.</p>
+<h2>V-55: No FLAG_SECURE on Sensitive Screens <span class="severity sev-high">HIGH</span><span class="new-tag">NEW</span></h2>
+<p>Zero instances of <code>FLAG_SECURE</code> across the entire application. All sensitive screens — payment flows, OAuth tokens, account settings, E2EE key management — are screenshotable, screen-recordable, and visible in task switcher thumbnails.</p>
+<p>Impact: Malicious screen-capture apps, shoulder surfing in task switcher, and automated screen-recording malware can capture payment details, session tokens, and private messages.</p>
 </div>
 
 <div class="section">
-<h2>V-45: Content Provider Access Token Leak <span class="severity sev-high">HIGH</span></h2>
-<p><code>FamilyAppsUserValuesProvider</code> returns <code>access_token</code> + <code>user_id</code> from <code>MetaSecureTokenStore</code>. Protected only by family app signature check (no manifest permission). Component disabled by default.</p>
+<h2>V-56: Access Token in URL Query Parameters <span class="severity sev-medium-high">MEDIUM-HIGH</span><span class="new-tag">NEW</span></h2>
+<p><code>AbstractOkTigonService</code> appends OAuth access tokens as URL query parameters instead of Authorization headers. Tokens logged in server access logs, proxy logs, browser history, and Referer headers on navigation.</p>
+<p class="info">Pattern: <code>?access_token=TOKEN</code> in Tigon HTTP client URLs. Affects all GraphQL/REST calls routed through this service.</p>
 </div>
 
 <div class="section">
-<h2>V-46: E2EE Key Destruction via RN Module <span class="severity sev-high">HIGH</span></h2>
-<p><code>TwilightE2EEModule</code> exposes <code>deleteKeyStore()</code>, <code>purgeKeyOnCloud()</code>, <code>resetUserSecret()</code> to any RN JS code. No per-module authorization. Key destruction = permanent data loss.</p>
+<h2>V-57: ACRA Crash Reporter LogCat Capture <span class="severity sev-medium">MEDIUM</span><span class="new-tag">NEW</span></h2>
+<p>ACRA crash reporting captures LogCat output on crash. Combined with Spotify PKCE flow logging (<code>code_verifier</code>, <code>authorization_code</code> to logcat), a crash during/after OAuth login leaks PKCE secrets in crash reports sent to remote server.</p>
+<p class="info">LogCat capture scope: entire application process buffer. Any sensitive data logged before crash is included.</p>
 </div>
+
+<div class="section">
+<h2>V-58: No Overlay/Tapjacking Protection <span class="severity sev-medium">MEDIUM</span><span class="new-tag">NEW</span></h2>
+<p>Zero instances of <code>filterTouchesWhenObscured=true</code> across all layouts. No runtime <code>FLAG_WINDOW_IS_OBSCURED</code> checks. All Activities — including payment confirmation, consent flows, and account linking — are vulnerable to tapjacking via malicious overlay apps.</p>
+<p class="info">Android overlay permission (SYSTEM_ALERT_WINDOW) allows drawing on top of any Activity. Without filterTouchesWhenObscured, touches pass through the overlay to the victim app.</p>
+</div>
+
+<div class="section">
+<h2>V-60: WebView-to-RN Hermes Dispatch <span class="severity sev-medium">MEDIUM</span><span class="new-tag">NEW</span></h2>
+<p>Hermes bytecode analysis confirms WebView <code>postMessage</code> dispatches to RN native module callbacks handling sensitive operations (OAuth tokens, payment state, user data). If attacker content loads in WebView (via V-24/V-51), crafted messages reach privileged RN handlers.</p>
+<p class="info">Chain: V-24 WebView injection → postMessage → Hermes onMessage → NativeModule.invoke(). Confirmed via Hermes disassembly of message routing.</p>
+</div>
+
+<!-- ===== CONFIRMED MEDIUM FINDINGS ===== -->
 
 <div class="section">
 <h2>V-27: agent.meta.ai Bypass <span class="severity sev-medium">MEDIUM</span></h2>
@@ -90,15 +144,49 @@ V-28: Account Linking CSRF
 </a>
 </div>
 
-<div class="section">
-<h2>V-48: Sessionless Payment Mutation <span class="severity sev-medium">MEDIUM</span></h2>
-<p><code>LoyaltyTopupMutation</code> in sessionless request whitelist — payment operation callable without authentication.</p>
-</div>
+<!-- ===== ADVERSARIAL DOWNGRADES ===== -->
 
 <div class="section">
-<h2>V-47: Facebook Token Leak to JS <span class="severity sev-medium">MEDIUM</span></h2>
-<p><code>TwilightFacebook.fetchDataFromFacebookApp</code> returns raw Facebook <code>access_token</code> to RN JS caller.</p>
+<h3>Adversarial Downgrades — Survived as Low/Informational</h3>
 </div>
+
+<div class="section downgraded">
+<h2>V-45: Content Provider Access Token Leak <span class="strike severity sev-high">HIGH</span> → <span class="severity sev-low">LOW</span></h2>
+<p><code>FamilyAppsUserValuesProvider</code> returns <code>access_token</code> + <code>user_id</code> from <code>MetaSecureTokenStore</code>. Protected by family app signature check.</p>
+<p class="info">Downgraded: Component is <code>android:enabled="false"</code> in manifest. Cannot be invoked by external apps in default configuration.</p>
+</div>
+
+<div class="section downgraded">
+<h2>V-46: E2EE Key Destruction via RN Module <span class="strike severity sev-high">HIGH</span> → <span class="severity sev-low">LOW</span></h2>
+<p><code>TwilightE2EEModule</code> exposes <code>deleteKeyStore()</code>, <code>purgeKeyOnCloud()</code>, <code>resetUserSecret()</code> to RN JS context.</p>
+<p class="info">Downgraded: No demonstrated path for external attacker to execute arbitrary JS in the React Native context. RN bridge is not reachable from WebView or deep links without a separate code execution vulnerability.</p>
+</div>
+
+<div class="section downgraded">
+<h2>V-47: Facebook Token Leak to JS <span class="strike severity sev-medium">MEDIUM</span> → <span class="severity sev-low">LOW</span></h2>
+<p><code>TwilightFacebook.fetchDataFromFacebookApp</code> returns raw Facebook <code>access_token</code> to RN JS caller.</p>
+<p class="info">Downgraded: Same JS execution barrier as V-46. Attacker cannot invoke this module without prior RN code execution.</p>
+</div>
+
+<div class="section downgraded">
+<h2>V-48: Sessionless Payment Mutation <span class="strike severity sev-medium">MEDIUM</span> → <span class="severity sev-info">INFO</span></h2>
+<p><code>LoyaltyTopupMutation</code> in sessionless request whitelist.</p>
+<p class="info">Downgraded: Sessionless whitelist is a standard server-side design pattern for specific flows. Server-side authorization still applies.</p>
+</div>
+
+<div class="section downgraded">
+<h2>V-52: Sharing Module URI Grant <span class="strike severity sev-high">HIGH</span> → <span class="severity sev-low">LOW</span></h2>
+<p>RN sharing modules grant URI read permission on SecureFileProvider backed by <code>external-path="/"</code>.</p>
+<p class="info">Downgraded: Attacker cannot control the <code>mediaPath</code> parameter without JS execution in RN context. The URI grant alone is insufficient — attacker must control the file path in the sharing intent.</p>
+</div>
+
+<div class="section downgraded">
+<h2>V-50: DoS via DeviceConfig Flip <span class="strike severity sev-medium">MEDIUM</span> → <span class="severity sev-low">LOW</span></h2>
+<p>DeviceConfig parameters controllable via debug paths can disable app functionality.</p>
+<p class="info">Downgraded: Impact limited to denial of service. No confidentiality or integrity impact demonstrated.</p>
+</div>
+
+<!-- ===== CONFIRMED LOW / STILL VALID ===== -->
 
 <div class="section">
 <h2>V-29: Consent Flow Trigger <span class="severity sev-low">LOW</span></h2>
@@ -107,8 +195,10 @@ V-29: Consent Flow Trigger
 </a>
 </div>
 
+<!-- ===== DEEP LINK CONFIRMATION ===== -->
+
 <div class="section">
-<h3>Native Route Confirmation (Round 5-6)</h3>
+<h3>Native Route Confirmation (Round 5-7)</h3>
 <p class="info">Deep links routing directly to native Activities, confirmed via logcat:</p>
 <a class="btn btn-native" href="oculus://discord_oauth/callback?code=TEST">discord_oauth → MetaWebAuthActivity</a>
 <a class="btn btn-native" href="oculus://frl_login/?token=TEST&blob=TEST">frl_login → MetaWebAuthActivity</a>
@@ -124,6 +214,8 @@ V-29: Consent Flow Trigger
 <a class="btn" href="oculus://view/oc_webview?url=https://poc.zere.es/meta-horizons/&useInternalWebView=true">V-21: WebView</a>
 </div>
 
+<!-- ===== NEGATIVE RESULTS ===== -->
+
 <div class="section">
 <h3>Negative Results (Properly Gated)</h3>
 <p class="info">These attack vectors were tested and confirmed NOT exploitable:</p>
@@ -132,8 +224,12 @@ V-29: Consent Flow Trigger
 <li><code>ocinternal_mobile_config_override</code> — properly gated by employee mode</li>
 <li>BloksScreenQuery deep link chaining — nested URLs NOT followed</li>
 <li>FamilyAppsUserValuesProvider (from shell) — SecurityException; family policy blocks non-Meta callers</li>
+<li>V-01 BroadcastReceiver command injection — receiver disabled + requires signature permission</li>
+<li>V-49 RN bridge exposure — standard React Native bridge behavior, not a vulnerability</li>
 </ul>
 </div>
+
+<!-- ===== ATTACK FLOWS ===== -->
 
 <pre>
 Attack Flow — V-24+V-51 (OAuth → HTTP Downgrade → WebView):
@@ -143,24 +239,29 @@ Attack Flow — V-24+V-51 (OAuth → HTTP Downgrade → WebView):
 4. SecureWebView.loadUrl(destination_url) — HTTP passes domain filter
 5. MITM injects content in authenticated WebView with session cookies
 
-Attack Flow — V-52 (Sharing → SD Card Read):
-1. Deep link / JS triggers sharing module (TwilightHorizonSharingModule)
-2. Module creates intent with FLAG_GRANT_READ_URI_PERMISSION
-3. URI: content://com.oculus.twilight.securefileprovider/...
-4. SecureFileProvider config: external-path path="/" (entire SD card)
-5. Scope fallback: ANY_APP when ?s= missing → isInScope() returns true
-6. Malicious receiving app reads arbitrary external storage files
+Attack Flow — V-55 (FLAG_SECURE missing):
+1. Victim opens payment/OAuth/settings screen in Meta Horizons
+2. Malicious app with screen capture permission records screen
+3. All UI content captured — no FLAG_SECURE protection on any Activity
+4. Task switcher also shows full screen content as thumbnail
 
-Attack Flow — V-46 (E2EE Key Destruction):
-1. Attacker achieves JS execution in RN context
-2. NativeModules.TwilightE2EEModule.deleteKeyStore()
-3. E2EE keys permanently destroyed — no recovery
-4. OR: createKeyStore({userSecret: "attacker"}) → attacker controls encryption
+Attack Flow — V-60 (WebView → RN Dispatch Chain):
+1. V-24: attacker content loads in authenticated SecureWebView
+2. Injected JS calls window.postMessage({type: "sensitive_action", ...})
+3. WebView bridge forwards to Hermes runtime onMessage handler
+4. Hermes dispatches to NativeModule callback (OAuth, payment, user data)
+5. Attacker-controlled data reaches privileged native modules
+
+Attack Flow — V-56 (Token in URL):
+1. App makes API call via AbstractOkTigonService
+2. Access token appended as ?access_token=TOKEN in URL
+3. Token logged in: server access logs, CDN/proxy logs, Referer header
+4. Any log viewer or MITM proxy captures persistent auth token
 </pre>
 
 <p class="info">
 Authorized security assessment — 2026-10-23<br>
-37 findings | Pixel 6a / Android 16 | Dynamic + static analysis
+44 findings | Pixel 6a / Android 16 | Dynamic + static analysis | Adversarial review applied
 </p>
 </body>
 </html>
