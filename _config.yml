@@ -6,6 +6,7 @@ theme: jekyll-theme-chirpy
 # Site metadata for better SEO
 author:
   name: Jorge Cerezo Dacosta
+  twitter: j_zere # without it, twitter:creator comes out as the full name
   email: zere@wearehackerone.com
   bio: Cybersecurity Researcher & Bug Hunter
   location: Spain
@@ -115,7 +116,7 @@ avatar: /assets/img/profile.jpg
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.
-social_preview_image: # string, local or CORS resources
+social_preview_image: /assets/img/social-card.jpg # string, local or CORS resources
 
 # boolean type, the global switch for TOC in posts.
 toc: true
@@ -153,7 +154,7 @@ assets:
 pwa:
   enabled: true # The option for PWA feature (installable)
   cache:
-    enabled: true # The option for PWA offline cache
+    enabled: false # offline cache off: returning visitors kept seeing the previous version after each deploy
     # Paths defined here will be excluded from the PWA cache.
     # Usually its value is the `baseurl` of another website that
     # shares the same domain name as the current website.
@@ -235,10 +236,8 @@ exclude:
   - "package*.json"
 
 jekyll-archives:
-  enabled: [categories, tags]
+  enabled: [categories]
   layouts:
     category: category
-    tag: tag
   permalinks:
-    tag: /tags/:name/
     category: /categories/:name/

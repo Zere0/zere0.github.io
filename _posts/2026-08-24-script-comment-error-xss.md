@@ -1,15 +1,16 @@
 ---
 title: "Turning JavaScript Error Handling into XSS"
 keywords: "xss, reflected xss, hoisting, javascript, throw statement, error constructor, bug bounty, web security"
-date: 2026-08-24
+date: 2026-08-24 12:00:00 +0200
 lastmod: 2026-08-24
 categories: [Security, Bug-Bounty, Web-Security]
-tags: [xss, reflected-xss, javascript, hoisting, web-security, bug-bounty]
+description: "An injection in a comment placed after a throw statement looked unreachable. A hoisted function named Error made it run anyway."
 toc: true
 math: false
 mermaid: true
 image:
-  path: /assets/img/script-comment-error-xss/cover.png
+  path: /assets/img/script-comment-error-xss/cover.jpg
+  alt: A crane lifts a code block that reads function Error() above another that reads throw new Error()
 ---
 
 Some time ago, while testing a web application, I found a reflected XSS that looked useless at first.

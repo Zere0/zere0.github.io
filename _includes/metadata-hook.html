@@ -1,0 +1,92 @@
+<!-- The theme includes this file at the end of <head>. -->
+
+<!-- Feed autodiscovery: the theme builds /feed.xml but does not announce it -->
+<link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+
+{%- comment -%}
+  The cover is the largest thing on the first screen, and the theme loads every image lazily,
+  so the browser finds it late. Ask for it up front: the post's own cover, or the newest post's
+  on the first page of the home.
+{%- endcomment -%}
+{% assign _cover = nil %}
+{% if page.layout == 'post' and page.image %}
+  {% assign _cover = page.image.path | default: page.image %}
+{% elsif page.layout == 'home' and paginator.page == 1 %}
+  {% assign _newest = site.posts | first %}
+  {% assign _cover = _newest.image.path | default: _newest.image %}
+{% endif %}
+{% if _cover %}
+  <link rel="preload" as="image" href="{{ _cover | relative_url }}" fetchpriority="high">
+{% endif %}
+
+<script>
+  /* Fixes the theme has no setting for.
+     Block comments only: the theme's HTML compressor joins every line, and a line comment
+     would swallow the rest of the script. */
+  (function () {
+    /* let people pinch-zoom: the theme's viewport carries user-scalable=no */
+    var viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) viewport.setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover');
+
+    /* the site is always dark, so the browser bar is too (the theme sends light grey to light systems) */
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {
+      meta.setAttribute('content', '#1b1b1e');
+    });
+
+    /* blocks that scroll sideways must be reachable with the keyboard */
+    function reachable(block, name) {
+      block.tabIndex = 0;
+      block.setAttribute('role', 'group');
+      block.setAttribute('aria-label', name);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      /* first stop for keyboard users */
+      var main = document.querySelector('main');
+      if (main) {
+        main.id = main.id || 'main-content';
+        main.setAttribute('tabindex', '-1');
+        var skip = document.createElement('a');
+        skip.className = 'skip-link';
+        skip.href = '#' + main.id;
+        skip.textContent = 'Skip to content';
+        document.body.insertBefore(skip, document.body.firstChild);
+      }
+
+      /* a post has two <nav> without a name: the menu and the table of contents */
+      var menu = document.querySelector('#sidebar nav');
+      if (menu) menu.setAttribute('aria-label', 'Site');
+      var toc = document.querySelector('nav#toc');
+      if (toc) toc.setAttribute('aria-label', 'Contents');
+
+      /* the "#" next to each heading is an icon-only link: give it a name */
+      document.querySelectorAll('.content a.anchor').forEach(function (anchor) {
+        var heading = anchor.closest('h2, h3, h4, h5');
+        anchor.setAttribute('aria-label', 'Link to this section' + (heading ? ': ' + heading.textContent.trim() : ''));
+      });
+
+      /* older / newer: the theme names these links just "Older" and "Newer". The caption moves
+         to data-label (the stylesheet prints it from there) and the title becomes part of the name */
+      document.querySelectorAll('.post-navigation a.btn[aria-label]').forEach(function (link) {
+        var caption = link.getAttribute('aria-label');
+        var prefix = document.createElement('span');
+        prefix.className = 'visually-hidden';
+        prefix.textContent = caption + ': ';
+        link.setAttribute('data-label', caption);
+        link.removeAttribute('aria-label');
+        link.insertBefore(prefix, link.firstChild);
+      });
+
+      document.querySelectorAll('.content .highlight').forEach(function (code) {
+        if (code.scrollWidth > code.clientWidth) reachable(code, 'Code sample');
+      });
+
+      /* on phones every diagram scrolls (the stylesheet keeps them at a readable width) */
+      if (window.matchMedia('(max-width: 575px)').matches) {
+        document.querySelectorAll('.content .mermaid').forEach(function (diagram) {
+          reachable(diagram, 'Diagram');
+        });
+      }
+    });
+  })();
+</script>

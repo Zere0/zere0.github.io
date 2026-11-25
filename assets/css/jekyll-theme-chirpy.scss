@@ -59,9 +59,6 @@ $muted: #a6a6ae;
 
   --search-border-color: #{$line};
   --btn-border-color: #{$line};
-  --tag-border: #3a3a41;
-  --tag-shadow: transparent;
-  --tag-hover: #{$accent-tint};
   --btn-share-hover-color: #{$ink};
 
   --language-border-color: #{$line};
@@ -73,7 +70,6 @@ $muted: #a6a6ae;
 
 /* The theme hardcodes an orange-red for hovered links */
 #page-category a:hover,
-#page-tag a:hover,
 .post-tail-wrapper .license-wrapper > a:hover,
 .post-edit > a:hover,
 #search-results a:hover,
@@ -85,7 +81,7 @@ footer a:hover,
   border-bottom-color: $accent-strong;
 }
 
-/* ...and Bootstrap blue for outline buttons (tag pills, older/newer) */
+/* ...and Bootstrap blue for outline buttons (older/newer) */
 .btn.btn-outline-primary {
   --bs-btn-hover-color: #{$ink};
   --bs-btn-hover-bg: #{$accent-tint};
@@ -172,26 +168,6 @@ main h1 {
         margin-left: 1rem;
       }
     }
-
-    /* the tags get a row of their own under the date (see _layouts/home.html) */
-    .card-tags {
-      flex-basis: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-top: 0.6rem;
-    }
-
-    .post-tag {
-      margin: 0;
-      padding: 0 0.55rem;
-      border: 0;
-      border-radius: 999px;
-      background: rgb(255 255 255 / 7%);
-      color: var(--text-color);
-      line-height: 1.4rem;
-      font-size: 0.75rem;
-    }
   }
 
   /* covers as a whole thumbnail with its own margin, instead of a panel cropped to the card */
@@ -215,28 +191,16 @@ main h1 {
   }
 }
 
-/* --- Right panel: tags only --- */
+/* --- Right panel: no "Recently Updated" list --- */
 
 #access-lastmod {
   display: none;
-
-  + section {
-    margin-top: 0;
-  }
-}
-
-#panel-wrapper .post-tag {
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  color: var(--text-color);
 }
 
 /* --- List pages: titles in the text colour, the accent only on hover --- */
 
 #archives a,
-#page-tag ul > li > a,
 #page-category ul > li > a,
-#tags .tag,
 .categories a,
 #search-results a,
 .post-navigation .btn:not(:hover) {
@@ -278,4 +242,766 @@ div[class^='language-'] .code-header {
 /* the folder line under each post (same reason as on the cards) */
 .post-tail-wrapper .post-meta {
   display: none;
+}
+
+/* --- Accessibility and housekeeping --- */
+
+/* -- keyboard focus: one visible ring everywhere. The theme mixed browser defaults, a faint blue
+      halo on the sidebar menu and nothing at all on "copy code" and "back to top". */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid $accent !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+#sidebar .nav-link:focus-visible {
+  outline-offset: -2px; /* stays inside the sidebar */
+}
+
+#post-list .post-preview:focus-visible {
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+#search-input:focus-visible,
+main[tabindex='-1']:focus-visible {
+  outline: none !important; /* the search pill already turns mustard; <main> only receives the skip link */
+}
+
+/* "Skip to content" is added by _includes/metadata-hook.html and shows on the first Tab */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1100;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  background: $accent;
+  color: #151517;
+  font-weight: 600;
+  transform: translateY(-250%);
+
+  &:hover {
+    color: #151517;
+  }
+
+  &:focus {
+    transform: none;
+    outline-color: $ink !important;
+  }
+}
+
+/* -- no jump when the web font arrives. Until then the text is set in a system font scaled to
+      the width of Source Sans Pro (which is about 5% narrower than Arial, Helvetica and Roboto),
+      so the lines break in the same places before and after. */
+@font-face {
+  font-family: 'Source Sans Pro fallback';
+  src: local('Arial'), local('Helvetica'), local('Roboto'), local('Liberation Sans');
+  size-adjust: 94.6%;
+  ascent-override: 104%;
+  descent-override: 28.9%;
+  line-gap-override: 0%;
+}
+
+body {
+  font-family: 'Source Sans Pro', 'Source Sans Pro fallback', 'Microsoft Yahei', sans-serif;
+}
+
+/* -- contrast */
+search i {
+  color: var(--text-muted-color); /* the theme's magnifier is 2.98:1 */
+}
+
+.content a.img-link + em,
+.content img + em {
+  color: var(--text-muted-color); /* the theme's image captions are 3.3:1 */
+}
+
+:root[data-bs-theme='dark'] .highlight .err {
+  color: inherit;
+  background-color: transparent; /* a token the lexer does not know is not an error: no red box on "..." */
+}
+
+mark {
+  padding: 0 0.2em;
+  border-radius: 3px;
+  background-color: rgb(226 179 63 / 30%);
+  color: inherit; /* instead of the browser's pure yellow */
+}
+
+/* -- breadcrumb: its link must not rely on colour alone, and the home page has nothing to show */
+#breadcrumb a {
+  display: inline-block;
+  padding-block: 0.25rem; /* 20 px tall otherwise */
+  text-decoration: underline;
+  text-decoration-color: var(--link-underline-color);
+  text-underline-offset: 3px;
+}
+
+#breadcrumb:not(:has(a)) {
+  visibility: hidden;
+}
+
+/* -- touch targets: the theme leaves these at 20 to 23 px on one side, WCAG 2.2 asks for 24 */
+.share-wrapper .share-icons {
+  align-items: center;
+
+  > * {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    margin-left: 0;
+    padding: 0;
+  }
+}
+
+#sidebar .sidebar-bottom > a {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* -- text that only screen readers get. The theme's trimmed Bootstrap has no helper for it. */
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.visually-hidden {
+  @include visually-hidden; /* the home page's single <h1>, the prefix of older / newer */
+}
+
+/* -- page title on phones and tablets: the theme removes the <h1> there (the top bar repeats the
+      title as plain text), which leaves About, Archives and 404 without a main heading */
+@media (max-width: 849px) {
+  h1.dynamic-title {
+    display: block;
+
+    @include visually-hidden;
+  }
+}
+
+/* -- older / newer: _includes/metadata-hook.html moves the theme's aria-label to data-label so
+      the link's name includes the post title; the small caption is printed from there */
+.post-navigation .btn[data-label]::before {
+  content: attr(data-label);
+}
+
+#archives a {
+  padding-block: 0.2rem; /* 22 px tall otherwise; inline padding, so the rows do not move */
+}
+
+/* -- home cards: room for a three-line description (the theme cuts at two) */
+#post-list .card .card-body .card-text.content p {
+  -webkit-line-clamp: 3; /* same selector weight as the theme's own rule */
+}
+
+/* ...and for a three-line title: two lines cut "…into Account Takeover" off the longest one */
+#post-list .card .card-body .card-title {
+  -webkit-line-clamp: 3;
+}
+
+/* -- the cover's alt text is for screen readers; the theme also prints it under the image */
+article header figcaption {
+  display: none;
+}
+
+/* -- diagrams on phones: shrunk to the screen their text is 5 to 9 px, so they keep a readable
+      width and scroll sideways */
+@media (max-width: 575px) {
+  .content .mermaid {
+    overflow-x: auto;
+    text-align: left;
+
+    > svg {
+      min-width: 600px;
+    }
+  }
+}
+
+/* -- phone menu: while it is closed, keep its links out of the tab order */
+@media (max-width: 849px) {
+  #sidebar {
+    visibility: hidden;
+    transition:
+      transform 0.4s ease,
+      visibility 0s linear 0.4s;
+  }
+
+  [sidebar-display] #sidebar {
+    visibility: visible;
+    transition:
+      transform 0.4s ease,
+      visibility 0s;
+  }
+}
+
+/* -- archive on phones: long titles wrap instead of ending in "…" */
+@media (max-width: 575px) {
+  #archives ul li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.6rem 2.3rem 1fr;
+    align-items: baseline;
+    padding: 0.75rem 0;
+    line-height: 1.35;
+    white-space: normal;
+    overflow: visible;
+
+    &::before {
+      /* the timeline */
+      position: absolute;
+      float: none;
+      top: 0;
+      bottom: 0;
+      left: 77px;
+      height: auto;
+    }
+  }
+
+  #archives ul:last-child li:last-child::before {
+    bottom: 50%;
+  }
+
+  #archives .date {
+    right: 0;
+  }
+
+  #archives a {
+    top: 0;
+    margin-left: 2.25rem;
+
+    &::before {
+      /* the dot on the timeline */
+      position: absolute;
+      float: none;
+      top: 0.45em;
+      left: -1.6rem;
+    }
+  }
+}
+
+/* --- Posts: header, table of contents, end of the page ---
+   The text itself is the theme's: same size, same line height, the full width of the column. */
+
+/* -- post header: date and reading time on one line above the cover; the "By" line goes
+      (single author, already named in the sidebar and at the end of the page) */
+article > header .post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 1.5rem;
+
+  > span {
+    order: 1;
+  }
+
+  > .d-flex {
+    display: contents !important; /* its two children join this row */
+
+    > span {
+      display: none;
+    }
+
+    > div {
+      order: 2;
+    }
+  }
+
+  > div:has(.preview-img) {
+    order: 3;
+    flex-basis: 100%;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* the sticky "contents" bar of phones and tablets keeps 3rem of empty room in the flow,
+   which the "By" line used to fill */
+#toc-bar {
+  margin-bottom: -2.25rem;
+}
+
+/* -- right panel on a post: the table of contents only, with full section names */
+#panel-wrapper:has(#toc-wrapper) .access {
+  display: none;
+}
+
+#toc-wrapper #toc .toc-link,
+#toc-wrapper #toc a {
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.35;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}
+
+/* -- end of the post: one gap of 3.5rem before what follows. The theme stacks three: 6rem here,
+      the margin of the category row (hidden, but still there) and 3rem above the licence row. */
+.post-tail-wrapper {
+  margin-top: 0.5rem;
+
+  > div:has(> .post-meta) {
+    display: none;
+  }
+}
+
+/* --- Code and diagrams ---
+   Code takes the colours of the cover illustrations (mustard, teal, coral) instead of the
+   stock base16 set, and the Mermaid diagrams take the site's type and palette. */
+
+$code-bg: #151517;
+$tok-key: #e2b33f; /* mustard: keywords, tag names         9.3:1 on $code-bg */
+$tok-str: #7ec4bd; /* teal: strings, attribute values      9.1:1 */
+$tok-num: #f0957d; /* coral: numbers, constants, escapes   8.1:1 */
+$tok-name: #d9c9a8; /* sand: attribute, class and namespace names  11.2:1 */
+$tok-comment: #8b8b94; /* 5.4:1 */
+$tok-text: #e4e4e7;
+$tok-punct: #a6a6ae;
+
+:root[data-bs-theme='dark'] {
+  --highlight-bg-color: #{$code-bg};
+  --highlight-lineno-color: #85858e; /* 5.0:1 */
+
+  .highlight,
+  .highlight .w {
+    color: $tok-text;
+    background-color: $code-bg;
+  }
+
+  .highlight .c,
+  .highlight .ch,
+  .highlight .cd,
+  .highlight .cm,
+  .highlight .cpf,
+  .highlight .c1,
+  .highlight .cs,
+  .highlight .gp {
+    color: $tok-comment;
+  }
+
+  .highlight .k,
+  .highlight .kn,
+  .highlight .kp,
+  .highlight .kr,
+  .highlight .kv,
+  .highlight .kd,
+  .highlight .kt,
+  .highlight .nt,
+  .highlight .sa {
+    color: $tok-key;
+  }
+
+  .highlight .s,
+  .highlight .sb,
+  .highlight .sc,
+  .highlight .dl,
+  .highlight .sd,
+  .highlight .s2,
+  .highlight .sh,
+  .highlight .sx,
+  .highlight .s1,
+  .highlight .ss,
+  .highlight .gi {
+    color: $tok-str;
+  }
+
+  .highlight .m,
+  .highlight .mb,
+  .highlight .mf,
+  .highlight .mh,
+  .highlight .mi,
+  .highlight .il,
+  .highlight .mo,
+  .highlight .mx,
+  .highlight .kc,
+  .highlight .cp,
+  .highlight .sr,
+  .highlight .si,
+  .highlight .se {
+    color: $tok-num;
+  }
+
+  .highlight .na,
+  .highlight .nn,
+  .highlight .nc,
+  .highlight .no {
+    color: $tok-name;
+  }
+
+  .highlight .o,
+  .highlight .ow,
+  .highlight .p,
+  .highlight .pi {
+    color: $tok-punct;
+  }
+
+  .highlight .gd {
+    color: $tok-num;
+    background-color: transparent;
+  }
+
+  .highlight .gh {
+    color: $tok-name;
+    background-color: transparent;
+  }
+}
+
+/* a little more air in the block itself */
+.highlight pre {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
+/* --- Mermaid: the stock "dark" theme, re-dressed. Colours go through !important because
+       Mermaid writes its own <style> inside every SVG. --- */
+
+$dia-line: #a6a6ae; /* arrows */
+$dia-rule: #45454d; /* lifelines and box borders */
+$dia-box: #222226; /* same as the cards */
+$dia-note: #373023; /* the mustard tint, flattened so lifelines do not show through */
+$dia-note-rule: #755f2d;
+
+.mermaid svg {
+  text,
+  tspan,
+  .nodeLabel,
+  .edgeLabel,
+  foreignObject div,
+  foreignObject span,
+  foreignObject p {
+    font-family: 'Source Sans Pro', 'Microsoft Yahei', sans-serif !important;
+  }
+
+  /* sequence diagrams */
+  .actor {
+    fill: $dia-box !important;
+    stroke: $dia-rule !important;
+  }
+
+  text.actor,
+  text.actor > tspan {
+    fill: $ink !important;
+    stroke: none !important;
+    font-weight: 600 !important;
+  }
+
+  .actor-line {
+    stroke: $dia-rule !important;
+  }
+
+  .messageLine0,
+  .messageLine1 {
+    stroke: $dia-line !important;
+  }
+
+  #arrowhead path,
+  [id$='arrowhead'] path,
+  [id$='crosshead'] path,
+  [id$='filled-head'] path {
+    fill: $dia-line !important;
+    stroke: $dia-line !important;
+  }
+
+  .messageText {
+    fill: #d8d8dc !important;
+  }
+
+  .note {
+    fill: $dia-note !important;
+    stroke: $dia-note-rule !important;
+  }
+
+  .noteText,
+  .noteText > tspan {
+    fill: $ink !important;
+    stroke: none !important;
+    font-weight: 600 !important; /* notes double as phase headings in the longer diagrams */
+  }
+
+  [id$='sequencenumber'] circle,
+  [id$='sequencenumber'] {
+    fill: $accent !important;
+  }
+
+  .sequenceNumber {
+    fill: #151517 !important;
+    font-weight: 700 !important;
+  }
+
+  .labelBox,
+  .loopLine {
+    fill: $dia-box !important;
+    stroke: $dia-rule !important;
+  }
+
+  .labelText,
+  .labelText > tspan,
+  .loopText,
+  .loopText > tspan {
+    fill: #d8d8dc !important;
+    stroke: none !important;
+  }
+
+  .activation0,
+  .activation1,
+  .activation2 {
+    fill: #2c2c31 !important;
+    stroke: $dia-rule !important;
+  }
+
+  /* flowcharts */
+  .node rect,
+  .node circle,
+  .node ellipse,
+  .node polygon,
+  .node path {
+    fill: $dia-box !important;
+    stroke: $dia-rule !important;
+  }
+
+  .nodeLabel,
+  .nodeLabel p,
+  .edgeLabel,
+  .edgeLabel p {
+    color: #d8d8dc !important;
+  }
+
+  .edgeLabel,
+  .edgeLabel p,
+  .labelBkg {
+    background-color: var(--main-bg) !important;
+  }
+
+  .flowchart-link {
+    stroke: $dia-line !important;
+  }
+
+  .marker {
+    fill: $dia-line !important;
+    stroke: $dia-line !important;
+  }
+}
+
+/* --- Home ---
+   The newest writeup leads at full width (.lead-card, set in _layouts/home.html) and the rest sit
+   in two columns, so the cover illustrations show at about twice their size. The right panel
+   leaves the home page, where it has nothing to show. */
+
+@media (min-width: 1200px) {
+  main:has(> #post-list) {
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
+
+    ~ #panel-wrapper {
+      display: none;
+    }
+  }
+
+  /* the footer follows the wider column */
+  .row:has(> main > #post-list) + .row > #tail-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  #post-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+
+    .card-wrapper {
+      margin-bottom: 0 !important;
+    }
+
+    .card .card-body .card-title {
+      -webkit-line-clamp: 3;
+    }
+
+    /* --- the lead card: text and cover side by side, half and half --- */
+    .lead-card {
+      grid-column: 1 / -1;
+
+      .post-preview > .col-md-5,
+      .post-preview > .col-md-7 {
+        width: 50%;
+      }
+
+      .card-body {
+        padding: 2rem 2rem 1.5rem;
+
+        .card-title {
+          font-size: 1.75rem;
+          line-height: 1.2;
+        }
+
+        .card-text.content p {
+          font-size: 1.05rem;
+          -webkit-line-clamp: 4;
+        }
+      }
+    }
+
+    /* --- the rest: cover on top, like the cards on a phone --- */
+    .card-wrapper:not(.lead-card) {
+      .post-preview {
+        flex-direction: column !important;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        height: 100%;
+
+        > .col-md-5,
+        > .col-md-7 {
+          width: 100%;
+        }
+
+        > .col-md-5 {
+          flex: 0 0 auto;
+          padding: 0;
+        }
+
+        > .col-md-7 {
+          flex: 1 1 auto;
+        }
+      }
+
+      .preview-img,
+      .preview-img img {
+        border-radius: 10px 10px 0 0;
+      }
+
+      .card-body {
+        padding: 1.25rem 1.5rem 1.25rem;
+      }
+    }
+  }
+}
+
+/* --- Identity: menu, author card, About --- */
+
+/* -- menu in sentence case (the theme writes the labels in capitals in the HTML itself) */
+#sidebar ul li.nav-item .nav-link span {
+  display: inline-block; /* ::first-letter needs a block */
+  text-transform: lowercase;
+  letter-spacing: 0;
+  font-size: 1rem;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+/* -- the line under the name is a job title, not a quotation */
+#sidebar .site-subtitle {
+  font-style: normal !important; /* the theme's markup carries Bootstrap's .fst-italic */
+}
+
+/* -- selected text in the accent instead of the system blue */
+::selection {
+  background: rgb(226 179 63 / 35%);
+  color: $ink;
+}
+
+/* -- author card at the end of every post (markup in _includes/post-sharing.html) */
+.post-tail-wrapper .post-tail-bottom {
+  flex-wrap: wrap;
+  row-gap: 1.75rem;
+}
+
+.post-author {
+  order: -1;
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.1rem 1.35rem;
+  border-radius: 10px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.5;
+
+  .post-author-photo {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: center / cover no-repeat;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  /* on phones the theme stacks this row bottom-up (wrap-reverse): last in order is on top */
+  @media (max-width: 575px) {
+    order: 1;
+    align-items: flex-start;
+  }
+
+  .post-author-name {
+    font-family: Lato, sans-serif;
+    font-weight: 700;
+    color: var(--heading-color);
+  }
+
+  .post-author-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 1.25rem;
+    margin-top: 0.3rem;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.75rem;
+      color: var(--link-color);
+      text-decoration: underline;
+      text-decoration-color: var(--link-underline-color);
+      text-underline-offset: 3px;
+
+      &:hover {
+        color: $accent-strong;
+      }
+    }
+  }
+}
+
+/* -- About: an opening line, and the contact list as two aligned columns */
+.content > p.about-lead {
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  line-height: 1.5;
+  color: var(--heading-color);
+}
+
+.content > dl.contact-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.45rem 1.5rem;
+  margin: 1rem 0 0;
+
+  dt {
+    font-weight: 400;
+    color: var(--text-muted-color);
+  }
+
+  dd {
+    margin: 0;
+  }
 }

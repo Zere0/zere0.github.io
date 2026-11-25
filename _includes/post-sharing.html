@@ -1,0 +1,68 @@
+<!-- Post sharing snippet -->
+
+<div class="share-wrapper d-flex align-items-center">
+  <span class="share-label text-muted">{{ site.data.locales[include.lang].post.share }}</span>
+  <span class="share-icons">
+    {% capture title %}{{ page.title }} - {{ site.title }}{% endcapture %}
+    {% assign title = title | uri_escape %}
+    {% assign url = page.url | absolute_url | url_encode %}
+
+    {% for share in site.data.share.platforms -%}
+      {%- capture tooltip -%}
+        data-bs-toggle="tooltip" data-bs-placement="top" title="{{ share.type }}" aria-label="{{ share.type }}"
+      {%- endcapture -%}
+
+      {% if share.type == 'Mastodon' %}
+        <script defer type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/share-to-mastodon/+esm"></script>
+        <button class="btn text-start" {{ tooltip }}>
+          <share-to-mastodon
+            class="share-mastodon"
+            message="{{ title }}"
+            url="{{ url }}"
+            {%- if share.instances -%}
+              customInstanceList="{{ share.instances | jsonify | xml_escape }}"
+            {%- endif %}
+          >
+            <i class="fa-fw {{ share.icon }}"></i>
+          </share-to-mastodon>
+        </button>
+
+        {% continue %}
+      {% endif %}
+
+      {% assign link = share.link | replace: 'TITLE', title | replace: 'URL', url %}
+
+      <a href="{{ link }}" target="_blank" rel="noopener" {{ tooltip }}>
+        <i class="fa-fw {{ share.icon }}"></i>
+      </a>
+    {% endfor %}
+
+    <button
+      id="copy-link"
+      aria-label="Copy link"
+      class="btn small"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="{{ site.data.locales[include.lang].post.button.share_link.title }}"
+      data-title-succeed="{{ site.data.locales[include.lang].post.button.share_link.succeed }}"
+    >
+      <i class="fa-fw fas fa-link pe-none fs-6"></i>
+    </button>
+  </span>
+</div>
+
+<!-- zere.es: who wrote this, for readers who arrive from a shared link (on a phone the sidebar
+     is closed, so nothing else on the page says it). The rest of this file is the theme's. -->
+<div class="post-author">
+  {%- comment -%} a background, not an <img>: the theme wraps every <img> of a post in a zoom link {%- endcomment %}
+  <span class="post-author-photo" style="background-image: url('{{ site.avatar | relative_url }}')"></span>
+  <div>
+    <p class="post-author-name">{{ site.social.name }}</p>
+    <p>Security researcher and bug hunter from Madrid. I write up some of the bugs I find in bug bounty programs.</p>
+    <p class="post-author-links">
+      <a href="https://twitter.com/{{ site.twitter.username }}" target="_blank" rel="noopener">@{{ site.twitter.username }} on X</a>
+      <a href="https://hackerone.com/zere" target="_blank" rel="noopener">HackerOne profile</a>
+      <a href="{{ '/feed.xml' | relative_url }}">RSS feed</a>
+    </p>
+  </div>
+</div>

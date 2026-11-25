@@ -1,15 +1,16 @@
 ---
 title: "Cache Deception + CSPT: Turning Non Impactful Findings into Account Takeover"
 keywords: "cache deception, cspt, client-side path traversal, account takeover, bug bounty, web security, vulnerability chaining, security research, chain"
-date: 2025-08-18
+date: 2025-08-18 12:00:00 +0200
 lastmod: 2025-08-18
 categories: [Security, Bug-Bounty, Web-Security]
-tags: [cspt, cache-deception, account-takeover, web-security, bug-bounty, client-side-path-traversal, vulnerability-chaining]
+description: "A Client-Side Path Traversal and a Cache Deception had no impact on their own. Chained together, they led to account takeover."
 toc: true
 math: false
 mermaid: true
 image:
-  path: /assets/img/cache-deception-cspt/cover.png
+  path: /assets/img/cache-deception-cspt/cover.jpg
+  alt: A burglar winches a tag marked ../ out of a filing cabinet labelled Cache
 ---
 
 Recently, while auditing the main application of a private bug bounty program, I discovered a **Client-Side Path Traversal (CSPT)** and a **Cache Deception** vulnerability. Individually, these issues were unexploitable and had no real impact. However, when chained together, I was able to demonstrate **Account Takeover**.

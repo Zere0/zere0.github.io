@@ -1,15 +1,16 @@
 ---
 title: "Deanonymizing Users at Scale: When Blocking Becomes an Oracle"
 keywords: "information disclosure, business logic, bug bounty, web security, privacy"
-date: 2025-11-18
+date: 2025-11-18 12:00:00 +0100
 lastmod: 2025-11-18
 categories: [Security, Bug-Bounty, Web-Security]
-tags: [information-disclosure, business-logic, web-security, bug-bounty]
+description: "Two ordinary features, combined, became an oracle that revealed the phone number of almost any user on a large social platform."
 toc: true
-math: true
+math: false
 mermaid: true
 image:
-  path: /assets/img/post_3/portada.png
+  path: /assets/img/post_3/portada.jpg
+  alt: A phone showing a grid of contacts, with a magnifying glass over one of them and a phone number
 ---
 
 
@@ -164,7 +165,7 @@ Once we know that the victim’s phone number is inside a group (a 500‑number 
   - If not, it is in the other half.
 - Repeat, halving the search space each time.
 
-After at most $\log_{2}(500)$ ≈ 9 iterations, we are left with a **single phone number**.
+After at most log<sub>2</sub>(500) ≈ 9 iterations, we are left with a **single phone number**.
 
 ```mermaid
 sequenceDiagram
@@ -226,7 +227,7 @@ So, in one test:
 
 In practice, the phone numbers of **17 out of 20 users were recovered in around 20 minutes** (the other 3 likely used foreign numbers).
 
-![script_result](../assets/img/post_3/result.png)
+![Terminal output of the script: a table of 20 users, 17 of them with a recovered phone number](/assets/img/post_3/result.webp){: w="1418" h="908" }
 _Result of running the script against 20 random users from Andorra._
 
 
