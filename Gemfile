@@ -2,7 +2,9 @@
 
 source "https://rubygems.org"
 
-gem "jekyll-theme-chirpy", "~> 7.3", ">= 7.3.1"
+# 7.6.x on purpose: assets/css/jekyll-theme-chirpy.scss and _layouts/home.html extend
+# that version of the theme. Review both before moving to a newer one.
+gem "jekyll-theme-chirpy", "~> 7.6.0"
 
 gem "html-proofer", "~> 5.0", group: :test
 

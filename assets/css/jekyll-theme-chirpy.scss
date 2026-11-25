@@ -1,0 +1,281 @@
+---
+---
+
+@use 'abstracts/variables' with (
+  $theme: '{{ site.theme_mode }}'
+);
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/*
+  zere.es on top of Chirpy: palette, heading weight and a few components.
+  Everything below is an override. Delete it and the stock theme is back.
+*/
+
+$accent: #e2b33f; /* mustard: links and active states */
+$accent-strong: #f2cd6b; /* link hover */
+$accent-tint: rgb(226 179 63 / 14%);
+$line: #303036;
+$ink: #f4f4f5;
+$muted: #a6a6ae;
+
+/* --- Palette (the site is dark-only, see `theme_mode` in _config.yml) --- */
+
+:root[data-bs-theme='dark'] {
+  --sidebar-bg: #151517;
+  --card-bg: #222226;
+  --main-border-color: #{$line};
+  --card-shadow: 0 0 0 1px #{$line}; /* a hairline instead of a drop shadow */
+  --card-hover-bg: #5a5a63;
+
+  --text-color: #d8d8dc;
+  --heading-color: #{$ink};
+  --label-color: #{$ink};
+  --text-muted-color: #{$muted};
+  --text-muted-highlight-color: #d8d8dc;
+  --blockquote-text-color: #{$muted};
+
+  --link-color: #{$accent};
+  --link-underline-color: rgb(226 179 63 / 45%);
+  --toc-highlight: #{$accent};
+  --input-focus-border-color: rgb(226 179 63 / 55%);
+
+  --site-title-color: #{$ink};
+  --site-subtitle-color: #{$muted};
+  --sidebar-muted-color: #{$muted};
+  --sidebar-active-color: #{$ink};
+  --sidebar-hover-bg: #222226;
+  --sidebar-border-color: #{$line};
+  --sidebar-btn-bg: #1b1b1e;
+  --sidebar-btn-color: #b4b4bb;
+  --avatar-border-color: #{$line};
+
+  --search-border-color: #{$line};
+  --btn-border-color: #{$line};
+  --tag-border: #3a3a41;
+  --tag-shadow: transparent;
+  --tag-hover: #{$accent-tint};
+  --btn-share-hover-color: #{$ink};
+
+  --language-border-color: #{$line};
+  --inline-code-bg: rgb(255 255 255 / 7%);
+  --highlighter-rouge-color: #e4e4e7;
+  --code-header-text-color: #8f8f98;
+  --code-header-icon-color: #8f8f98;
+}
+
+/* The theme hardcodes an orange-red for hovered links */
+#page-category a:hover,
+#page-tag a:hover,
+.post-tail-wrapper .license-wrapper > a:hover,
+.post-edit > a:hover,
+#search-results a:hover,
+footer a:hover,
+#topbar #breadcrumb a:hover,
+.post-meta a:not([class]):hover,
+.content a:not(.img-link):hover {
+  color: $accent-strong !important;
+  border-bottom-color: $accent-strong;
+}
+
+/* ...and Bootstrap blue for outline buttons (tag pills, older/newer) */
+.btn.btn-outline-primary {
+  --bs-btn-hover-color: #{$ink};
+  --bs-btn-hover-bg: #{$accent-tint};
+  --bs-btn-active-color: #{$ink};
+  --bs-btn-active-bg: rgb(226 179 63 / 22%);
+  --bs-btn-active-border-color: #{$accent};
+  --bs-btn-focus-shadow-rgb: 226, 179, 63;
+
+  &:not(.disabled):hover {
+    border-color: rgb(226 179 63 / 55%) !important;
+  }
+}
+
+/* --- Type: bold headings (Lato 700 is requested in _data/origin/cors.yml) --- */
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 700;
+}
+
+main h1 {
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* --- Sidebar --- */
+
+#sidebar {
+  #avatar img:hover {
+    transform: none;
+  }
+
+  .site-subtitle {
+    height: auto; /* the theme reserves exactly two lines */
+    margin-bottom: 0.5rem;
+
+    &::before {
+      content: 'Jorge Cerezo Dacosta';
+      display: block;
+      margin-bottom: 0.4rem;
+      font-style: normal;
+      color: var(--text-color);
+    }
+  }
+
+  ul li.nav-item.active .nav-link i {
+    color: $accent;
+    opacity: 1;
+  }
+
+  /* Categories leaves the menu (every post sits in the same ones); /categories/ still works */
+  .nav-item:has(> a[href$='/categories/']) {
+    display: none;
+  }
+}
+
+/* --- Home: post cards --- */
+
+#post-list .card {
+  /* no folder line: every post sits in the same categories */
+  .post-meta .fa-folder-open,
+  .post-meta .categories {
+    display: none;
+  }
+
+  .card-body {
+    .card-title {
+      text-wrap: balance;
+    }
+
+    .post-meta {
+      > div:first-child {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        overflow: visible;
+        white-space: normal;
+      }
+
+      i:not(:first-child) {
+        margin-left: 1rem;
+      }
+    }
+
+    /* the tags get a row of their own under the date (see _layouts/home.html) */
+    .card-tags {
+      flex-basis: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.6rem;
+    }
+
+    .post-tag {
+      margin: 0;
+      padding: 0 0.55rem;
+      border: 0;
+      border-radius: 999px;
+      background: rgb(255 255 255 / 7%);
+      color: var(--text-color);
+      line-height: 1.4rem;
+      font-size: 0.75rem;
+    }
+  }
+
+  /* covers as a whole thumbnail with its own margin, instead of a panel cropped to the card */
+  @media all and (min-width: 768px) {
+    .post-preview {
+      align-items: center;
+
+      > .col-md-5 {
+        padding: 1.25rem 1.25rem 1.25rem 0;
+      }
+    }
+
+    .preview-img {
+      height: auto; /* lets the theme's 40 / 21 ratio apply */
+
+      &,
+      img {
+        border-radius: 8px;
+      }
+    }
+  }
+}
+
+/* --- Right panel: tags only --- */
+
+#access-lastmod {
+  display: none;
+
+  + section {
+    margin-top: 0;
+  }
+}
+
+#panel-wrapper .post-tag {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  color: var(--text-color);
+}
+
+/* --- List pages: titles in the text colour, the accent only on hover --- */
+
+#archives a,
+#page-tag ul > li > a,
+#page-category ul > li > a,
+#tags .tag,
+.categories a,
+#search-results a,
+.post-navigation .btn:not(:hover) {
+  color: var(--heading-color);
+}
+
+#search-results {
+  a {
+    font-weight: 700;
+  }
+
+  /* same folder line as on the cards */
+  .post-meta > div:has(> .fa-folder) {
+    display: none;
+  }
+}
+
+/* --- Posts --- */
+
+/* code blocks: no window dots, language label on the left */
+div[class^='language-'] .code-header {
+  &::before {
+    content: none;
+  }
+
+  span {
+    margin-left: 0.6rem;
+  }
+}
+
+/* sequence diagrams: keep message labels readable where they cross a lifeline */
+.mermaid .messageText {
+  paint-order: stroke;
+  stroke: var(--main-bg) !important;
+  stroke-width: 8px !important;
+  stroke-linejoin: round;
+}
+
+/* the folder line under each post (same reason as on the cards) */
+.post-tail-wrapper .post-meta {
+  display: none;
+}

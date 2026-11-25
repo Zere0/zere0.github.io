@@ -1,0 +1,4 @@
+# Merged over the theme's English labels (site data wins key by key).
+# The related-posts block was also called "Further Reading", like the closing section of some posts.
+post:
+  relate_posts: More writeups
